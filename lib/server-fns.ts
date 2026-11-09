@@ -24,6 +24,7 @@ import { cyberLeaderboard, type CyberLeaderboard } from "@/lib/cyber-index";
 import { getDeepSweData, type DeepSweData } from "@/lib/deepswe";
 import { matchDeepSweModels, type DeepSweModelInfo } from "@/lib/deepswe-catalog";
 import { getFrontierCodeData, type FrontierCodeData } from "@/lib/frontiercode";
+import { getPersonalityData, type PersonalityData } from "@/lib/aa-personality";
 import { matchFrontierCodeModels, type FrontierCodeModelInfo } from "@/lib/frontiercode-catalog";
 import { getAa3dData, type Aa3dData } from "@/lib/aa3d";
 import { getDecisionIndexData, type DecisionIndexData } from "@/lib/decision-index";
@@ -255,6 +256,15 @@ export const fetchFrontierCodeData = createServerFn({ method: "GET" }).handler(
   async (): Promise<FrontierCodeData & { catalog: Record<string, FrontierCodeModelInfo> }> => {
     setResponseCache();
     const [data, models] = await Promise.all([getFrontierCodeData(), getLLMModels()]);
+    return { ...data, catalog: matchFrontierCodeModels(models, data.rows) };
+  },
+);
+
+/** Artificial Analysis AA-PersonalityBench trait ratings, matched to the catalogue like FrontierCode. */
+export const fetchPersonalityData = createServerFn({ method: "GET" }).handler(
+  async (): Promise<PersonalityData & { catalog: Record<string, FrontierCodeModelInfo> }> => {
+    setResponseCache();
+    const [data, models] = await Promise.all([getPersonalityData(), getLLMModels()]);
     return { ...data, catalog: matchFrontierCodeModels(models, data.rows) };
   },
 );

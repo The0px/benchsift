@@ -43,6 +43,7 @@ export interface AAV2LanguageModel {
   };
   pricing?: unknown;
   performance?: unknown;
+  performance_v3?: unknown;
   context_window_tokens?: unknown;
   parameters?: {
     total?: unknown;
@@ -64,12 +65,15 @@ type FetchAAPage<T> = (endpoint: string) => Promise<AAApiEnvelope<T[]>>;
 const EVALUATION_ALIASES: Readonly<Record<string, string>> = {
   artificial_analysis_agentic_index: "agentic_index",
   artificial_analysis_multilingual_index: "multilingual_aa",
+  aa_briefcase_elo: "aa_briefcase",
   aa_lcr: "lcr",
   aa_omniscience_accuracy: "omniscience",
   aa_omniscience_non_hallucination_rate: "omniscience_non_hallucination",
   gdpval_aa_elo: "gdpval",
+  frontiercode_v2_0: "frontiercode_2_0",
   gdpval_aa_normalized: "gdpval_normalized",
   gpqa_diamond: "gpqa",
+  mlcr_overall: "mlcr_aa",
   tau2_telecom: "tau2",
 };
 
@@ -184,6 +188,48 @@ function normalisePricing(raw: unknown): Pricing {
   };
 }
 
+function record(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : {};
+}
+
+/**
+ * Speed and latency under Performance Benchmarking v3 when AA sends the
+ * `performance_v3` key, else the earlier medians. A null v3 block means no
+ * measurement in the latest window: the earlier medians follow another
+ * methodology and must not stand in for it.
+ */
+function normalisePerformance(raw: AAV2LanguageModel): Pick<
+  LLMModel,
+  | "median_output_tokens_per_second"
+  | "median_time_to_first_token_seconds"
+  | "median_time_to_first_answer_token"
+  | "end_to_end_response_time_seconds"
+  | "time_per_task_seconds"
+  | "performance_version"
+> {
+  const legacy = record(raw.performance);
+  const endToEnd = finiteNumber(legacy.median_end_to_end_response_time_seconds);
+  if (raw.performance_v3 === undefined) {
+    return {
+      median_output_tokens_per_second: finiteNumber(legacy.median_output_tokens_per_second),
+      median_time_to_first_token_seconds: finiteNumber(legacy.median_time_to_first_token_seconds),
+      median_time_to_first_answer_token: finiteNumber(legacy.median_time_to_first_answer_token_seconds),
+      end_to_end_response_time_seconds: endToEnd,
+    };
+  }
+  const v3 = record(raw.performance_v3);
+  return {
+    median_output_tokens_per_second: finiteNumber(v3.mean_output_tokens_per_second),
+    median_time_to_first_token_seconds: finiteNumber(v3.mean_time_to_first_token_seconds),
+    median_time_to_first_answer_token: finiteNumber(v3.mean_time_to_first_answer_token_seconds),
+    end_to_end_response_time_seconds: endToEnd,
+    time_per_task_seconds: finiteNumber(v3.time_per_task_seconds),
+    performance_version: 3,
+  };
+}
+
 function modality(
   raw: Record<string, unknown> | undefined,
   key: string,
@@ -200,10 +246,7 @@ export function normaliseAAV2LanguageModel(
   const creator = normaliseCreator(raw.model_creator);
   if (!id || !name || !slug || !creator) return null;
 
-  const performance = raw.performance && typeof raw.performance === "object"
-    && !Array.isArray(raw.performance)
-    ? raw.performance as Record<string, unknown>
-    : {};
+  const performance = normalisePerformance(raw);
   const releaseDate = optionalString(raw.release_date);
   const huggingfaceUrl = optionalString(raw.huggingface_url);
   const openRouterApiId = optionalString(raw.openrouter_api_id);
@@ -216,18 +259,7 @@ export function normaliseAAV2LanguageModel(
     model_creator: creator,
     evaluations: normaliseEvaluations(raw.evaluations),
     pricing: normalisePricing(raw.pricing),
-    median_output_tokens_per_second: finiteNumber(
-      performance.median_output_tokens_per_second,
-    ),
-    median_time_to_first_token_seconds: finiteNumber(
-      performance.median_time_to_first_token_seconds,
-    ),
-    median_time_to_first_answer_token: finiteNumber(
-      performance.median_time_to_first_answer_token_seconds,
-    ),
-    end_to_end_response_time_seconds: finiteNumber(
-      performance.median_end_to_end_response_time_seconds,
-    ),
+    ...performance,
     context_window_tokens: optionalFiniteNumber(raw.context_window_tokens),
     total_parameters_b: optionalFiniteNumber(raw.parameters?.total),
     active_parameters_b: optionalFiniteNumber(raw.parameters?.active),
@@ -281,6 +313,14 @@ function mergeDefined<T extends object>(fallback: T, current: T): T {
 function mergeAAModel(current: LLMModel, legacy: LLMModel): LLMModel {
   return {
     ...mergeDefined(legacy, current),
+    // The legacy endpoint only has pre-v3 medians, which cannot fill a v3 gap.
+    ...(current.performance_version === 3
+      ? {
+          median_output_tokens_per_second: current.median_output_tokens_per_second,
+          median_time_to_first_token_seconds: current.median_time_to_first_token_seconds,
+          median_time_to_first_answer_token: current.median_time_to_first_answer_token,
+        }
+      : {}),
     id: current.id,
     name: current.name,
     slug: current.slug,

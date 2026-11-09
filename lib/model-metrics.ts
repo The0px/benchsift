@@ -33,14 +33,18 @@ const AA_INDEX_KEYS = new Set<string>([
   ...AA_CAPABILITY_INDEX_KEYS,
 ]);
 
-/** Intelligence Index v5 benchmarks published as 0–1 fractions (AA-Briefcase is an Elo). */
+/**
+ * Intelligence Index v5 benchmarks published as 0–1 fractions (AA-Briefcase is
+ * an Elo). The index scores CritPt v2 on its Hard Subset, not the full set.
+ */
 export const AA_INDEX_V5_FRACTION_KEYS = [
-  "frontiercode_2_0", "terminalbench_science", "hle_diamond", "critpt_v2", "automationbench_aa", "gdp_pdf",
+  "frontiercode_2_0", "terminalbench_science", "hle_diamond", "critpt_v2_hard", "automationbench_aa", "gdp_pdf",
 ] as const;
 
 /** 0–1 benchmarks read from the AA Intelligence Index page outside the index itself. */
 export const AA_INDEX_PAGE_FRACTION_KEYS = [
-  "harvey_lab_aa", "mlcr_aa", "healthbench", "healthbench_professional", "analyst_agent_aa", "enterprise_ops_gym_aa",
+  "critpt_v2", "vials_aa", "harvey_lab_aa", "mlcr_aa", "healthbench", "healthbench_professional", "analyst_agent_aa",
+  "enterprise_ops_gym_aa",
 ] as const;
 
 /** Elo-rated text benchmarks; every other text benchmark is a 0–1 fraction. */
@@ -77,6 +81,7 @@ export const TEXT_BENCHMARK_KEYS = new Set([
   "apex_agents",
   "itbench_aa",
   "omniscience_non_hallucination",
+  "frontiercode_v1_1",
 ]);
 
 export const AA_MEDIA_BENCHMARK_DEFS = [
@@ -123,7 +128,7 @@ export const FRACTION_BENCHMARK_KEYS = [
   "mmlu_pro", "gpqa", "hle", "livecodebench", "scicode", "math_500", "aime", "aime_25",
   "ifbench", "lcr", "terminalbench_hard", "terminalbench_v2_1", "terminalbench_v4_0", "tau2", "tau_banking",
   "humaneval", "omniscience", "multilingual_aa", "mmmu_pro", "critpt", "gdpval_normalized",
-  "apex_agents", "itbench_aa", "omniscience_non_hallucination",
+  "apex_agents", "itbench_aa", "omniscience_non_hallucination", "frontiercode_v1_1",
   ...AA_INDEX_PAGE_FRACTION_KEYS,
 ] as const;
 

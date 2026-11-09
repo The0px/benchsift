@@ -15,6 +15,7 @@ import {
 } from "./model-metrics";
 import {
   MISSING,
+  formatDuration,
   formatMoney,
   formatNumber,
   formatPercent,
@@ -37,6 +38,7 @@ export type ComparisonFormat =
   | "money"
   | "tokens"
   | "seconds"
+  | "duration"
   | "speed"
   | "elo"
   | "rank";
@@ -117,6 +119,8 @@ export function formatComparisonValue(
       return formatMoney(value, lang);
     case "seconds":
       return formatSeconds(value, lang);
+    case "duration":
+      return formatDuration(value, lang);
     case "speed":
       return formatSpeed(value, lang);
     case "tokens":
@@ -200,6 +204,7 @@ export function buildComparisonRows(
     "mmmu_pro",
     "critpt",
     "apex_agents",
+    "frontiercode_v1_1",
     ...AA_INDEX_PAGE_FRACTION_KEYS,
   ];
   for (const key of indices)
@@ -310,6 +315,13 @@ export function buildComparisonRows(
     "performance",
     (m) => m.end_to_end_response_time_seconds,
     { direction: "lower", format: "seconds" },
+  );
+  add(
+    "time-per-task",
+    f.timePerTask,
+    "performance",
+    (m) => m.time_per_task_seconds,
+    { direction: "lower", format: "duration" },
   );
   const priceFields = [
     ["price_1m_input_tokens", f.inputPrice],
@@ -458,6 +470,7 @@ export function buildComparisonRows(
     ttft: g.ttft,
     "first-answer": g.firstAnswer,
     "end-to-end": g.endToEnd,
+    "time-per-task": g.timePerTask,
     price_1m_blended_3_to_1: t.detail.blendedTooltip,
     price_1m_blended_7_2_1: t.detail.blended721Tooltip,
     context: g.contextWindow,
