@@ -180,7 +180,7 @@ export function SiteHeader({ backHref, modelCount }: SiteHeaderProps) {
               <span className="sr-only xl:not-sr-only">{t.nav.buyMeACoffee}</span>
             </a>
             <a
-              href="https://github.com/scorpion7slayer/benchsift/issues"
+              href="https://github.com/The0px/benchsift/issues"
               target="_blank"
               rel="noopener noreferrer"
               title={t.nav.feedback}
@@ -190,7 +190,7 @@ export function SiteHeader({ backHref, modelCount }: SiteHeaderProps) {
               <span className="sr-only xl:not-sr-only">{t.nav.feedback}</span>
             </a>
             <a
-              href="https://github.com/scorpion7slayer/benchsift"
+              href="https://github.com/The0px/benchsift"
               target="_blank"
               rel="noopener noreferrer"
               className="flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"

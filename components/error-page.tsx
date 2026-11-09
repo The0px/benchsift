@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ERROR_STATUS, errorKind, isErrorKind, type ErrorKind } from "@/lib/error-kind";
 import { useI18n } from "@/lib/i18n";
 
-const ISSUES_URL = "https://github.com/scorpion7slayer/benchsift/issues";
+const ISSUES_URL = "https://github.com/The0px/benchsift/issues";
 
 /** Full error page: header, an animated scene for the kind of error, then what to do next. */
 export function ErrorPage({ kind, onRetry }: { kind: ErrorKind; onRetry?: () => void }) {

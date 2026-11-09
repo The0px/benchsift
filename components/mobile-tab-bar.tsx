@@ -137,7 +137,7 @@ export function MobileTabBar() {
             <Info aria-hidden="true" className="size-5 shrink-0" />
             {t.nav.about}
           </SheetLink>
-          <a href="https://github.com/scorpion7slayer/benchsift/issues" target="_blank" rel="noopener noreferrer" onClick={close} className={SHEET_ROW}>
+          <a href="https://github.com/The0px/benchsift/issues" target="_blank" rel="noopener noreferrer" onClick={close} className={SHEET_ROW}>
             <MessageSquarePlus aria-hidden="true" className="size-5 shrink-0" />
             {t.nav.feedback}
           </a>
@@ -153,7 +153,7 @@ export function MobileTabBar() {
               {label(t)}
             </a>
           ))}
-          <a href="https://github.com/scorpion7slayer/benchsift" target="_blank" rel="noopener noreferrer" onClick={close} className={SHEET_ROW}>
+          <a href="https://github.com/The0px/benchsift" target="_blank" rel="noopener noreferrer" onClick={close} className={SHEET_ROW}>
             <ExternalLink aria-hidden="true" className="size-5 shrink-0 text-muted-foreground" />
             GitHub
           </a>
