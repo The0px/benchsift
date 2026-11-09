@@ -12,7 +12,7 @@ export function SiteFooter() {
         <div>
           <Link href="/" className="inline-flex items-center gap-2 text-lg font-semibold"><BrandMark className="size-7" />BenchSift</Link>
           <p className="mt-3 max-w-xs text-sm leading-relaxed text-muted-foreground">{t.footer.description}</p>
-          <a href="https://github.com/scorpion7slayer/benchsift" target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-2 text-sm">GitHub<ExternalLink className="size-4" /></a>
+          <a href="https://github.com/The0px/benchsift" target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-2 text-sm">GitHub<ExternalLink className="size-4" /></a>
         </div>
         <nav aria-label={t.footer.explore}>
           <h2 className="mb-2 text-sm font-semibold">{t.footer.explore}</h2>
@@ -30,7 +30,7 @@ export function SiteFooter() {
         </nav>
       </div>
       <div className="mt-7 flex flex-col gap-4 border-t pt-4 text-xs text-muted-foreground lg:flex-row lg:items-center lg:justify-between">
-        <p className="flex flex-wrap items-center gap-x-3"><a href="https://github.com/scorpion7slayer" target="_blank" rel="noopener noreferrer">© scorpion7slayer</a><span aria-hidden="true">·</span><a href="https://nxtaigen.com/">NxtAIGen</a><span aria-hidden="true">·</span><a href="https://github.com/scorpion7slayer/benchsift/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a></p>
+        <p className="flex flex-wrap items-center gap-x-3"><a href="https://github.com/The0px" target="_blank" rel="noopener noreferrer">© The0px</a><span aria-hidden="true">·</span><a href="https://nxtaigen.com/">NxtAIGen</a><span aria-hidden="true">·</span><a href="https://github.com/The0px/benchsift/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a></p>
         <nav aria-label={t.trust.legal} className="grid grid-cols-2 gap-x-5 sm:flex sm:flex-wrap sm:items-center">
           <Link href="/privacy">{t.trust.privacy}</Link><Link href="/legal">{t.trust.legal}</Link><Link href="/accessibility">{t.trust.accessibility}</Link><AnalyticsPreferencesButton />
         </nav>
