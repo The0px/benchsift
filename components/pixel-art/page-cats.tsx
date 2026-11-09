@@ -8,7 +8,7 @@ import { EASE_IN, EASE_IN_OUT, EASE_OUT, PixelScene, Sprite, pivot, track, trans
  * once, then only loops small gestures; reduced motion shows it at rest.
  */
 
-export type PageCatKind = "home" | "catalog" | "detail" | "compare" | "deepswe" | "frontiercode" | "decision" | "agents" | "cyber" | "about" | "reading";
+export type PageCatKind = "home" | "catalog" | "detail" | "compare" | "deepswe" | "frontiercode" | "decision" | "agents" | "cyber" | "personality" | "about" | "reading";
 
 const H = 15;
 const UNIT = 2;
@@ -404,6 +404,57 @@ const CYBER: Scene = {
   ),
 };
 
+/* PersonalityBench: speaks in one tone after another, warm, assertive, then hesitant. */
+const TONES = [
+  { rows: [".#.#.", "#####", ".###.", "..#.."], fill: "px-alert", x: 2, y: 1 },
+  { rows: ["#", "#", "#", ".", "#"], fill: "px-yarn", x: 4, y: 1 },
+  // Dark on paper in both themes.
+  { rows: ["#.#.#"], fill: "px-eye", x: 2, y: 3 },
+] as const;
+const TONE_MS = 2000;
+const TONE_IN = 300;
+
+const PERSONALITY: Scene = {
+  width: 34,
+  css: [
+    drop("pc-personality"),
+    sitting("pc-personality"),
+    ...TONES.map((_, tone) =>
+      loop(`.pc-personality-t${tone}`, `pc-personality-t${tone}`, TONES.length * TONE_MS, "opacity", [
+        [0, "0", STEP],
+        [tone * TONE_MS + TONE_IN, "1", STEP],
+        [(tone + 1) * TONE_MS, "0"],
+      ], tone === 0 ? "1" : "0"),
+    ),
+    // The bubble hops each time a new tone appears.
+    loop(".pc-personality-bubble", "pc-personality-bubble", TONE_MS, "transform", [
+      [0, translate(0, 0), STEP],
+      [TONE_IN, translate(0, -1), STEP],
+      [TONE_IN + 160, translate(0, 0)],
+    ]),
+    swish("pc-personality", 2600),
+    blinkLoop("pc-personality", 4200),
+  ].join(""),
+  body: (
+    <g className="pc-personality-in">
+      <g className="pc-personality-bubble">
+        <Sprite
+          rows={[".ddddddd.", "dpppppppd", "dpppppppd", "dpppppppd", "dpppppppd", "dpppppppd", ".ddddddd.", "......dd.", ".......dd"]}
+          palette={{ d: "px-prop-dark", p: "px-paper" }}
+          x={0}
+          y={0}
+        />
+        {TONES.map((tone, index) => (
+          <g key={tone.fill} className={`pc-personality-t${index}`}>
+            <Sprite rows={tone.rows} palette={{ "#": tone.fill }} x={tone.x} y={tone.y} />
+          </g>
+        ))}
+      </g>
+      <SittingCat id="pc-personality" cx={21} />
+    </g>
+  ),
+};
+
 /* About: says hello. */
 const ABOUT: Scene = {
   width: 27,
@@ -473,6 +524,7 @@ const SCENES: Record<PageCatKind, Scene> = {
   decision: DECISION,
   agents: AGENTS,
   cyber: CYBER,
+  personality: PERSONALITY,
   about: ABOUT,
   reading: READING,
 };

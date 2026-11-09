@@ -5,6 +5,7 @@ import { CatalogSelect } from "@/components/catalog-select";
 import { CreatorMark } from "@/components/creator-mark";
 import { Link } from "@/components/link";
 import { ModelProviderIcon } from "@/components/model-provider-icon";
+import { PageCat } from "@/components/pixel-art/page-cats";
 import { SearchField } from "@/components/search-field";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -86,19 +87,22 @@ export function PersonalityView({
     <div className="flex flex-col gap-6">
       <BenchmarkHeader icon={AudioLines} title={copy.title} description={copy.description} source={source} />
 
-      <StatTiles
-        tiles={[
-          { key: "models", label: copy.stats.models, value: formatNumber(data.rows.length, lang, 0) },
-          {
-            key: "traits",
-            label: copy.stats.traits,
-            value: formatNumber(data.traits.length, lang, 0),
-            detail: data.indexes.length ? copy.stats.traitsDetail(data.indexes.length) : undefined,
-          },
-          { key: "most", label: copy.stats.most, value: top.family_name, detail: `${traitText.label} · ${eloLabel(top)} Elo` },
-          { key: "least", label: copy.stats.least, value: bottom.family_name, detail: `${traitText.label} · ${eloLabel(bottom)} Elo` },
-        ]}
-      />
+      <div className="relative">
+        <PageCat kind="personality" className="absolute bottom-[calc(100%+1px)] right-6" />
+        <StatTiles
+          tiles={[
+            { key: "models", label: copy.stats.models, value: formatNumber(data.rows.length, lang, 0) },
+            {
+              key: "traits",
+              label: copy.stats.traits,
+              value: formatNumber(data.traits.length, lang, 0),
+              detail: data.indexes.length ? copy.stats.traitsDetail(data.indexes.length) : undefined,
+            },
+            { key: "most", label: copy.stats.most, value: top.family_name, detail: `${traitText.label} · ${eloLabel(top)} Elo` },
+            { key: "least", label: copy.stats.least, value: bottom.family_name, detail: `${traitText.label} · ${eloLabel(bottom)} Elo` },
+          ]}
+        />
+      </div>
 
       <section aria-labelledby="personality-ranking-title" className="min-w-0 rounded-xl border bg-card p-4 sm:p-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
