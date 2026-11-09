@@ -28,6 +28,7 @@ import { Route as BenchmarksCyberRouteImport } from './routes/benchmarks/cyber'
 import { Route as BenchmarksDecisionIndexRouteImport } from './routes/benchmarks/decision-index'
 import { Route as BenchmarksDeepsweRouteImport } from './routes/benchmarks/deepswe'
 import { Route as BenchmarksFrontiercodeRouteImport } from './routes/benchmarks/frontiercode'
+import { Route as BenchmarksPersonalityRouteImport } from './routes/benchmarks/personality'
 import { Route as BenchmarksRoboticsRouteImport } from './routes/benchmarks/robotics'
 import { Route as ComparePairRouteImport } from './routes/compare_.$pair'
 import { Route as DocsApiRouteImport } from './routes/docs/api'
@@ -139,6 +140,11 @@ const BenchmarksFrontiercodeRoute = BenchmarksFrontiercodeRouteImport.update({
   path: '/benchmarks/frontiercode',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BenchmarksPersonalityRoute = BenchmarksPersonalityRouteImport.update({
+  id: '/benchmarks/personality',
+  path: '/benchmarks/personality',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BenchmarksRoboticsRoute = BenchmarksRoboticsRouteImport.update({
   id: '/benchmarks/robotics',
   path: '/benchmarks/robotics',
@@ -230,6 +236,7 @@ export interface FileRoutesByFullPath {
   '/benchmarks/decision-index': typeof BenchmarksDecisionIndexRoute
   '/benchmarks/deepswe': typeof BenchmarksDeepsweRoute
   '/benchmarks/frontiercode': typeof BenchmarksFrontiercodeRoute
+  '/benchmarks/personality': typeof BenchmarksPersonalityRoute
   '/benchmarks/robotics': typeof BenchmarksRoboticsRoute
   '/compare/$pair': typeof ComparePairRoute
   '/docs/api': typeof DocsApiRoute
@@ -264,6 +271,7 @@ export interface FileRoutesByTo {
   '/benchmarks/decision-index': typeof BenchmarksDecisionIndexRoute
   '/benchmarks/deepswe': typeof BenchmarksDeepsweRoute
   '/benchmarks/frontiercode': typeof BenchmarksFrontiercodeRoute
+  '/benchmarks/personality': typeof BenchmarksPersonalityRoute
   '/benchmarks/robotics': typeof BenchmarksRoboticsRoute
   '/compare/$pair': typeof ComparePairRoute
   '/docs/api': typeof DocsApiRoute
@@ -299,6 +307,7 @@ export interface FileRoutesById {
   '/benchmarks/decision-index': typeof BenchmarksDecisionIndexRoute
   '/benchmarks/deepswe': typeof BenchmarksDeepsweRoute
   '/benchmarks/frontiercode': typeof BenchmarksFrontiercodeRoute
+  '/benchmarks/personality': typeof BenchmarksPersonalityRoute
   '/benchmarks/robotics': typeof BenchmarksRoboticsRoute
   '/compare_/$pair': typeof ComparePairRoute
   '/docs/api': typeof DocsApiRoute
@@ -335,6 +344,7 @@ export interface FileRouteTypes {
     | '/benchmarks/decision-index'
     | '/benchmarks/deepswe'
     | '/benchmarks/frontiercode'
+    | '/benchmarks/personality'
     | '/benchmarks/robotics'
     | '/compare/$pair'
     | '/docs/api'
@@ -369,6 +379,7 @@ export interface FileRouteTypes {
     | '/benchmarks/decision-index'
     | '/benchmarks/deepswe'
     | '/benchmarks/frontiercode'
+    | '/benchmarks/personality'
     | '/benchmarks/robotics'
     | '/compare/$pair'
     | '/docs/api'
@@ -403,6 +414,7 @@ export interface FileRouteTypes {
     | '/benchmarks/decision-index'
     | '/benchmarks/deepswe'
     | '/benchmarks/frontiercode'
+    | '/benchmarks/personality'
     | '/benchmarks/robotics'
     | '/compare_/$pair'
     | '/docs/api'
@@ -438,6 +450,7 @@ export interface RootRouteChildren {
   BenchmarksDecisionIndexRoute: typeof BenchmarksDecisionIndexRoute
   BenchmarksDeepsweRoute: typeof BenchmarksDeepsweRoute
   BenchmarksFrontiercodeRoute: typeof BenchmarksFrontiercodeRoute
+  BenchmarksPersonalityRoute: typeof BenchmarksPersonalityRoute
   BenchmarksRoboticsRoute: typeof BenchmarksRoboticsRoute
   ComparePairRoute: typeof ComparePairRoute
   DocsApiRoute: typeof DocsApiRoute
@@ -588,6 +601,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BenchmarksFrontiercodeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/benchmarks/personality': {
+      id: '/benchmarks/personality'
+      path: '/benchmarks/personality'
+      fullPath: '/benchmarks/personality'
+      preLoaderRoute: typeof BenchmarksPersonalityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/benchmarks/robotics': {
       id: '/benchmarks/robotics'
       path: '/benchmarks/robotics'
@@ -702,6 +722,7 @@ const rootRouteChildren: RootRouteChildren = {
   BenchmarksDecisionIndexRoute: BenchmarksDecisionIndexRoute,
   BenchmarksDeepsweRoute: BenchmarksDeepsweRoute,
   BenchmarksFrontiercodeRoute: BenchmarksFrontiercodeRoute,
+  BenchmarksPersonalityRoute: BenchmarksPersonalityRoute,
   BenchmarksRoboticsRoute: BenchmarksRoboticsRoute,
   ComparePairRoute: ComparePairRoute,
   DocsApiRoute: DocsApiRoute,

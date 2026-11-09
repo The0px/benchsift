@@ -13,7 +13,7 @@ function ordinal(value: number): string {
 
 export type SeoPageKey =
   | "home" | "models" | "compare" | "agentsCoding" | "deepswe" | "frontiercode" | "aa3d"
-  | "decisionIndex" | "cyber" | "robotics" | "about" | "privacy" | "legal" | "accessibility";
+  | "decisionIndex" | "cyber" | "robotics" | "personality" | "about" | "privacy" | "legal" | "accessibility";
 
 export interface Translations {
   /** Page titles and descriptions for search results and link previews. */
@@ -190,6 +190,7 @@ export interface Translations {
     decisionIndex: string;
     cyber: string;
     robotics: string;
+    personality: string;
     models: string;
     about: string;
     otherBenchmarks: string;
@@ -371,6 +372,7 @@ export interface Translations {
     ttft: string;
     firstAnswer: string;
     endToEnd: string;
+    timePerTask: string;
     contextWindow: string;
     openWeights: string;
     openrouterRank: string;
@@ -429,6 +431,7 @@ export interface Translations {
     openrouterWeeklyRank: string;
     endToEnd: string;
     endToEndTooltip: string;
+    timePerTask: string;
     inputTokens: string;
     outputTokens: string;
     cacheHit: string;
@@ -527,6 +530,7 @@ export interface Translations {
       ttft: string;
       firstAnswer: string;
       endToEnd: string;
+      timePerTask: string;
       inputPrice: string;
       outputPrice: string;
       cacheHitPrice: string;
@@ -741,6 +745,30 @@ export interface Translations {
       costs: string;
     };
   };
+  personality: {
+    title: string;
+    description: string;
+    empty: string;
+    sourceNote: string;
+    viewOnSource: string;
+    search: string;
+    models: string;
+    traitLabel: string;
+    indexLabel: string;
+    rankingTitle: (trait: string) => string;
+    rankingHint: string;
+    stats: { models: string; traits: string; traitsDetail: (indexes: number) => string; most: string; least: string };
+    headers: { model: string; elo: string };
+    methodDescription: string;
+    method: {
+      questions: string;
+      answers: string;
+      judging: string;
+      rating: string;
+      reading: string;
+      indexes: string;
+    };
+  };
   robotics: {
     title: string;
     description: string;
@@ -884,6 +912,9 @@ export interface Translations {
     terminalbench_science: string;
     hle_diamond: string;
     critpt_v2: string;
+    critpt_v2_hard: string;
+    vials_aa: string;
+    frontiercode_v1_1: string;
     automationbench_aa: string;
     gdp_pdf: string;
     aa_briefcase: string;
@@ -917,6 +948,7 @@ const T: Record<Lang, Translations> = {
         decisionIndex: { title: "Decision Index - BenchSift", description: "Comparez modèles de décision et modèles de langage sur la lecture de documents, la constance, l'appel d'outils, les connaissances et le raisonnement, avec coût et temps par tâche." },
         cyber: { title: "Cyber Index - BenchSift", description: "Les performances des modèles d'IA en cybersécurité dans un seul classement : scores, refus de sécurité, modèles à accès restreint et coût par tâche." },
         robotics: { title: "AA-Robotics - BenchSift", description: "Des modèles de langage pilotent un bras robotique sur des tâches de table : score, coût et temps par tâche, comparés à un humain, avec les vidéos des essais." },
+        personality: { title: "AA-PersonalityBench - BenchSift", description: "Quel modèle d'IA est le plus drôle, le plus direct ou le plus flagorneur ? Les 30 traits de personnalité d'AA-PersonalityBench, notés par un Elo pour chaque modèle." },
         about: { title: "À propos de BenchSift - Comparaison indépendante des modèles d'IA", description: "Pourquoi BenchSift simplifie la comparaison des modèles d'IA, d'où viennent ses données et pourquoi c'est une alternative à Artificial Analysis, pas un concurrent." },
         privacy: { title: "Confidentialité | BenchSift", description: "Comment BenchSift traite la mesure d'audience, les cookies et vos données." },
         legal: { title: "Mentions légales | BenchSift", description: "Éditeur, hébergement, licence et sources des données de BenchSift." },
@@ -1152,6 +1184,7 @@ const T: Record<Lang, Translations> = {
       decisionIndex: "Decision Index",
       cyber: "Cyber Index",
       robotics: "AA-Robotics",
+      personality: "AA-PersonalityBench",
       models: "Modèles",
       allModels: "Tous les modèles",
       about: "À propos",
@@ -1348,10 +1381,11 @@ const T: Record<Lang, Translations> = {
       coding: "Indice d'Artificial Analysis consacré à la programmation, calculé à partir de ses benchmarks de code.",
       math: "Indice d'Artificial Analysis consacré aux mathématiques, calculé à partir de problèmes de niveau compétition.",
       agentic: "Indice d'Artificial Analysis pour les tâches agentiques : usage d'outils, de terminal et workflows en plusieurs étapes.",
-      outputSpeed: "Tokens reçus par seconde pendant la génération, après le premier fragment. Médiane mesurée par Artificial Analysis.",
+      outputSpeed: "Tokens reçus par seconde sur toute la durée de la requête, attente du premier token comprise. Moyenne des charges mesurées par Artificial Analysis sur 5 jours (Performance Benchmarking v3).",
       ttft: "Délai avant le premier token reçu après l'envoi de la requête. Pour un modèle de raisonnement, il peut s'agir d'un token de réflexion.",
       firstAnswer: "Délai avant le premier token de la réponse finale, réflexion comprise pour les modèles de raisonnement.",
       endToEnd: "Durée totale pour recevoir une réponse de 500 tokens, en incluant le traitement de l'entrée et la réflexion.",
+      timePerTask: "Temps par tâche de l'Intelligence Index publié par Artificial Analysis : tokens de sortie divisés par la vitesse de sortie de bout en bout.",
       contextWindow: "Nombre maximal de tokens que le modèle peut traiter dans une seule requête.",
       openWeights: "Poids publiés et téléchargeables, sous une licence propre à chaque modèle. Fermés : accès uniquement via API ou produit.",
       openrouterRank: "Position du modèle dans le classement de popularité d'OpenRouter.",
@@ -1410,6 +1444,7 @@ const T: Record<Lang, Translations> = {
       openrouterWeeklyRank: "Rang OpenRouter hebdo",
       endToEnd: "Temps de réponse total (500 t)",
       endToEndTooltip: "Temps total nécessaire pour générer une réponse de 500 tokens. Inclut le temps d'attente initial, le temps de raisonnement (pour les modèles à raisonnement) et le temps de génération.",
+      timePerTask: "Temps par tâche",
       inputTokens: "Tokens d'entrée",
       outputTokens: "Tokens de sortie",
       cacheHit: "Cache Hit",
@@ -1517,6 +1552,7 @@ const T: Record<Lang, Translations> = {
         ttft: "TTFT",
         firstAnswer: "Temps 1ère réponse",
         endToEnd: "Temps total (500 t)",
+        timePerTask: "Temps par tâche",
         inputPrice: "Entrée",
         outputPrice: "Sortie",
         cacheHitPrice: "Cache Hit",
@@ -1781,6 +1817,36 @@ const T: Record<Lang, Translations> = {
         costs: "Coût et tokens par scène sont calculés avec les données et les règles d'Artificial Analysis, sur les 55 tâches : les lectures en cache au prix du cache, le reste de l'entrée au prix d'écriture en cache, la sortie au prix de sortie. Un modèle sans taux de cache ou sans prix n'a pas de coût.",
       },
     },
+    personality: {
+      title: "AA-PersonalityBench",
+      description: "Comment les modèles d'IA écrivent par défaut. Artificial Analysis note 30 traits de personnalité par un Elo : un Elo élevé signale un trait plus marqué, pas un meilleur modèle.",
+      empty: "Les résultats AA-PersonalityBench ne sont pas disponibles pour le moment.",
+      sourceNote: "Données via Artificial Analysis, AA-PersonalityBench. Libellés et définitions des traits traduits de l'anglais par BenchSift.",
+      viewOnSource: "Voir sur Artificial Analysis",
+      search: "Rechercher un modèle ou un créateur",
+      models: "modèles",
+      traitLabel: "Trait de personnalité",
+      indexLabel: "Index",
+      rankingTitle: (trait) => `Classement du trait « ${trait} »`,
+      rankingHint: "Du modèle qui montre le plus ce trait à celui qui le montre le moins. La barre situe chaque Elo entre le plus bas et le plus haut mesurés pour ce trait.",
+      stats: {
+        models: "Modèles notés",
+        traits: "Traits",
+        traitsDetail: (indexes) => `regroupés en ${indexes} index`,
+        most: "Trait le plus marqué",
+        least: "Trait le moins marqué",
+      },
+      headers: { model: "Modèle", elo: "Elo" },
+      methodDescription: "AA-PersonalityBench mesure la personnalité des modèles à travers leur style d'écriture. Il évalue à quel point chaque trait ressort, pas la qualité de la réponse : un même trait peut être souhaitable ou non selon le lecteur.",
+      method: {
+        questions: "Le jeu compte 30 questions par trait, soit 900 questions. Certaines encouragent légèrement le trait, d'autres sont neutres. Il reste privé, à l'exception de quelques exemples.",
+        answers: "Chaque modèle répond une fois à chaque question, dans un seul message utilisateur et sans prompt système : la réponse montre comment il écrit par défaut.",
+        judging: "Pour chaque trait, un modèle juge issu d'un panel compare deux réponses anonymisées à la même question et désigne celle où le trait ressort le plus, ou une égalité.",
+        rating: "Un modèle de Bradley-Terry à pénalité de Firth ajuste ces verdicts, une égalité comptant pour une demi-victoire de chaque côté. GPT-6.1 Sol (max) sert d'ancre à 1 000 Elo sur chaque trait ; un écart de 400 points correspond à une cote de 10 contre 1.",
+        reading: "Un Elo peut être négatif. Pour « Flagorneur » et « Remplissage », un Elo élevé signale davantage de flatterie ou de remplissage.",
+        indexes: "Artificial Analysis regroupe les traits en huit index, chacun étant la moyenne des scores centrés réduits de ses traits, classée en centile de 1 à 100 ; « Flagorneur » compte à l'inverse dans la Transparence. Ces index ne sont publiés que pour les modèles affichés sur ses graphiques : BenchSift ne les recalcule pas et ne montre que les Elo par trait.",
+      },
+    },
     robotics: {
       title: "AA-Robotics",
       description: "Aperçu de recherche d'Artificial Analysis : des modèles de langage, dans un harnais d'agent de code, pilotent directement un bras robotisé à 6 axes pour réaliser des tâches simples sur une table.",
@@ -1945,6 +2011,9 @@ const T: Record<Lang, Translations> = {
       terminalbench_science: "Terminal-Bench-Science",
       hle_diamond: "HLE-Diamond",
       critpt_v2: "CritPt v2",
+      critpt_v2_hard: "CritPt v2 (Hard Subset)",
+      vials_aa: "VIALS-AA",
+      frontiercode_v1_1: "FrontierCode 1.1",
       automationbench_aa: "AutomationBench-AA",
       gdp_pdf: "GDP.pdf (tous critères)",
       aa_briefcase: "AA-Briefcase",
@@ -1976,6 +2045,7 @@ const T: Record<Lang, Translations> = {
         decisionIndex: { title: "Decision Index - BenchSift", description: "Compare decision models and language models on document reading, consistency, tool calling, knowledge and reasoning, with cost and time per task." },
         cyber: { title: "Cyber Index - BenchSift", description: "How AI models perform on cybersecurity tasks in one ranking: scores, safety refusals, trusted-access models and cost per task." },
         robotics: { title: "AA-Robotics - BenchSift", description: "Language models drive a robot arm on tabletop tasks: score, cost and time per task, compared with a human baseline, with run videos." },
+        personality: { title: "AA-PersonalityBench - BenchSift", description: "Which AI model is the funniest, the most direct or the most sycophantic? The 30 AA-PersonalityBench personality traits, rated with an Elo for each model." },
         about: { title: "About BenchSift - Independent AI Model Comparison", description: "Learn why BenchSift offers a simpler way to compare AI models, where its data comes from, and why it is an alternative rather than a competitor to Artificial Analysis." },
         privacy: { title: "Privacy | BenchSift", description: "How BenchSift handles analytics, cookies and your data." },
         legal: { title: "Legal | BenchSift", description: "Publisher, hosting, license and data sources of BenchSift." },
@@ -2211,6 +2281,7 @@ const T: Record<Lang, Translations> = {
       decisionIndex: "Decision Index",
       cyber: "Cyber Index",
       robotics: "AA-Robotics",
+      personality: "AA-PersonalityBench",
       models: "Models",
       allModels: "All models",
       about: "About",
@@ -2407,10 +2478,11 @@ const T: Record<Lang, Translations> = {
       coding: "Artificial Analysis index for programming, computed from its coding benchmarks.",
       math: "Artificial Analysis index for mathematics, computed from competition-level problems.",
       agentic: "Artificial Analysis index for agentic work: tool use, terminal tasks and multi-step workflows.",
-      outputSpeed: "Tokens received per second while the model generates, after the first chunk. Median measured by Artificial Analysis.",
+      outputSpeed: "Tokens received per second over the whole request, including the wait for the first token. Average of the workloads Artificial Analysis measured over 5 days (Performance Benchmarking v3).",
       ttft: "Time until the first token arrives after the request is sent. For reasoning models this can be a thinking token.",
       firstAnswer: "Time until the first token of the final answer, including thinking time for reasoning models.",
       endToEnd: "Total time to receive a 500-token response, including input processing and thinking.",
+      timePerTask: "Time per Intelligence Index task published by Artificial Analysis: output tokens divided by end-to-end output speed.",
       contextWindow: "Maximum number of tokens the model can process in a single request.",
       openWeights: "Weights are published and downloadable under a model-specific licence. Closed: available only through an API or product.",
       openrouterRank: "The model's position in OpenRouter's popularity ranking.",
@@ -2469,6 +2541,7 @@ const T: Record<Lang, Translations> = {
       openrouterWeeklyRank: "OpenRouter weekly rank",
       endToEnd: "End-to-end response (500 t)",
       endToEndTooltip: "Total time to generate a 500-token response. Includes the initial wait time, thinking time (for reasoning models), and generation time.",
+      timePerTask: "Time per task",
       inputTokens: "Input tokens",
       outputTokens: "Output tokens",
       cacheHit: "Cache Hit",
@@ -2576,6 +2649,7 @@ const T: Record<Lang, Translations> = {
         ttft: "TTFT",
         firstAnswer: "First answer",
         endToEnd: "End-to-end (500 t)",
+        timePerTask: "Time per task",
         inputPrice: "Input",
         outputPrice: "Output",
         cacheHitPrice: "Cache Hit",
@@ -2840,6 +2914,36 @@ const T: Record<Lang, Translations> = {
         costs: "Cost and tokens per scene use Artificial Analysis' data and rules over the 55 tasks: cache reads at the cache price, other input at the cache-write price, output at the output price. A model without a cache rate or a price has no cost.",
       },
     },
+    personality: {
+      title: "AA-PersonalityBench",
+      description: "How AI models write by default. Artificial Analysis rates 30 personality traits with an Elo: a higher Elo means the trait shows more, not that the model is better.",
+      empty: "AA-PersonalityBench results are not available right now.",
+      sourceNote: "Data via Artificial Analysis, AA-PersonalityBench.",
+      viewOnSource: "View on Artificial Analysis",
+      search: "Search a model or creator",
+      models: "models",
+      traitLabel: "Personality trait",
+      indexLabel: "Index",
+      rankingTitle: (trait) => `Ranking for the "${trait}" trait`,
+      rankingHint: "From the model that shows this trait most to the one that shows it least. The bar places each Elo between the lowest and highest measured for this trait.",
+      stats: {
+        models: "Models rated",
+        traits: "Traits",
+        traitsDetail: (indexes) => `grouped into ${indexes} indexes`,
+        most: "Shows the trait most",
+        least: "Shows the trait least",
+      },
+      headers: { model: "Model", elo: "Elo" },
+      methodDescription: "AA-PersonalityBench measures model personality through writing style. It rates how prominent each trait is, not how good the answer is: the same trait can be welcome or not depending on the reader.",
+      method: {
+        questions: "The set has 30 questions per trait, 900 in total. Some gently encourage the trait, others are neutral. It stays private apart from a few samples.",
+        answers: "Each model answers every question once, as a single user message with no system prompt, so the answer shows how it writes by default.",
+        judging: "For each trait, a judge model from a panel compares two blinded answers to the same question and picks the one showing the trait more, or a tie.",
+        rating: "A Firth-penalized Bradley-Terry model fits the verdicts, a tie counting as half a win for each side. GPT-6.1 Sol (max) anchors every trait at 1,000 Elo; a 400-point gap means 10-to-1 odds.",
+        reading: "An Elo can be negative. For \"Sycophantic\" and \"Slop\", a higher Elo means more flattery or more filler.",
+        indexes: "Artificial Analysis groups the traits into eight indexes, each the mean of its traits' z-scores, percentile ranked from 1 to 100; \"Sycophantic\" counts inversely toward Transparency. It publishes those indexes only for the models on its charts, so BenchSift does not recompute them and shows the per-trait Elos only.",
+      },
+    },
     robotics: {
       title: "AA-Robotics",
       description: "Artificial Analysis research preview: language models in a coding-agent harness directly control a 6-axis robot arm to complete simple tabletop tasks.",
@@ -3004,6 +3108,9 @@ const T: Record<Lang, Translations> = {
       terminalbench_science: "Terminal-Bench-Science",
       hle_diamond: "HLE-Diamond",
       critpt_v2: "CritPt v2",
+      critpt_v2_hard: "CritPt v2 (Hard Subset)",
+      vials_aa: "VIALS-AA",
+      frontiercode_v1_1: "FrontierCode 1.1",
       automationbench_aa: "AutomationBench-AA",
       gdp_pdf: "GDP.pdf (all-pass)",
       aa_briefcase: "AA-Briefcase",

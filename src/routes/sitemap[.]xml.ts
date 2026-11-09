@@ -85,6 +85,7 @@ export const Route = createFileRoute("/sitemap.xml")({
           live("/benchmarks/decision-index"),
           catalogue("/benchmarks/cyber", 0.8),
           live("/benchmarks/robotics"),
+          live("/benchmarks/personality"),
         ];
 
         return new Response(renderSitemap(entries), {

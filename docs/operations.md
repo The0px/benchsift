@@ -89,6 +89,23 @@ performed by this implementation.
 
 ## Sources
 
+Artificial Analysis's V2 language models endpoint names some evaluations
+differently from the catalogue: `aa_briefcase_elo`, `frontiercode_v2_0` and
+`mlcr_overall` are stored as `aa_briefcase`, `frontiercode_2_0` and `mlcr_aa`.
+The Intelligence Index page's `initialModels` array fills the gaps the API
+leaves and never replaces an API value; it is also the only source for
+VIALS-AA (`vialsScore`, its pass^3 score). CritPt v2 has two scores: the full
+set (`critpt_v2`) and the Hard Subset the Intelligence Index weights
+(`critpt_v2_hard`).
+
+Speed and latency follow Performance Benchmarking v3: when a model carries the
+`performance_v3` key, its means replace the earlier medians and
+`time_per_task_seconds` is read when the tier publishes it. A null block means
+AA has no measurement in the latest window, and neither `performance` nor the
+legacy endpoint fills it, since both use the earlier methodology. Responses
+without the key keep the medians. The 500-token end-to-end time still comes
+from `performance`.
+
 `https://models.dev/models.json` provides canonical, provider-independent models.
 The source is fetched server-side during a cold catalogue build or scheduled
 refresh and is optional on failures. Concurrent fetches share their work. Once
@@ -191,7 +208,22 @@ AA publishes task texts, clip captions and end reasons in English only;
 `lib/aa-robotics-fr.ts` translates them, keyed by task id or clip path, and
 anything new keeps its English text until it is added there.
 
-All six benchmark sources have a six-hour process cache, shared in-flight
+AA-PersonalityBench reads the `judgedPool` array of Artificial Analysis's
+`/evaluations/aa-personalitybench` RSC response: one Elo per model and trait,
+which says how strongly the model shows the trait, not how good it is. AA
+sends the scores of its charted models on the chart's own `initialModels` list
+and points to them from the pool, so they are joined back by slug; a row whose
+scores cannot be sourced is dropped. Elos can be negative. Trait labels and
+definitions sit in a record that follows text rows on the same line, so they
+are read from the payload text by brace matching; the trait-to-index grouping
+comes from the page's index cards. AA publishes its eight personality indexes
+for the charted models only, as a percentile rank across every model, so
+BenchSift shows the per-trait Elos and does not recompute them. The selected
+trait is kept in the URL (`trait`). AA publishes trait and index texts in
+English only; `lib/aa-personality-fr.ts` translates them by id, and anything
+new keeps its English text. Rows join the catalogue like FrontierCode.
+
+All seven benchmark sources have a six-hour process cache, shared in-flight
 requests, and a 30-second retry cooldown after failures. An unavailable source
 is not cached as a successful empty response for six hours. These caches are not stored in Redis.
 

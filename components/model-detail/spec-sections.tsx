@@ -3,6 +3,7 @@ import { BookOpen, DollarSign, ImageIcon, Info, Mic, Route, Type, Video, Zap } f
 import { Badge } from "@/components/ui/badge";
 import type { LLMModel } from "@/lib/model-types";
 import {
+  formatDuration,
   formatMoney,
   formatNumber,
   formatParameters,
@@ -116,6 +117,7 @@ export function PerformanceCard({ model, ranks }: { model: LLMModel; ranks: Mode
     { key: "ttft", label: t.detail.ttft, hint: t.glossary.ttft, value: when(model.median_time_to_first_token_seconds, seconds), rank: ranks.ttft },
     { key: "first-answer", label: t.detail.firstAnswer, hint: t.glossary.firstAnswer, value: when(model.median_time_to_first_answer_token, seconds) },
     { key: "end-to-end", label: t.detail.endToEnd, hint: t.detail.endToEndTooltip, value: when(model.end_to_end_response_time_seconds, seconds) },
+    { key: "time-per-task", label: t.detail.timePerTask, hint: t.glossary.timePerTask, value: when(model.time_per_task_seconds, (value) => formatDuration(value, lang)) },
     { key: "rank", label: t.detail.openrouterWeeklyRank, hint: t.glossary.openrouterRank, value: when(model.openrouter_weekly_rank, (value) => `#${value}`) },
   ];
   if (!specs.some((spec) => spec.value != null)) return null;

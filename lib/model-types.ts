@@ -67,10 +67,14 @@ export interface LLMModel {
   model_creator: ModelCreator;
   evaluations: Evaluations;
   pricing: Pricing;
-  // Performance (from the API) / depuis l'API
+  // Performance (from the API) / depuis l'API. With `performance_version` 3
+  // these hold AA's Performance Benchmarking v3 means, not medians.
   median_output_tokens_per_second: number | null;
   median_time_to_first_token_seconds: number | null;
   median_time_to_first_answer_token: number | null;
+  performance_version?: 3;
+  // AA's v3 headline: time to complete a task (seconds), Pro tier only
+  time_per_task_seconds?: number | null;
   // End-to-end latency for 500-token response (seconds) / latence bout en bout pour 500 tokens
   end_to_end_response_time_seconds?: number | null;
   // Additional capabilities (AA scraping — detail page only) / disponibles sur la page détail

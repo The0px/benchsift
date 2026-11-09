@@ -322,6 +322,7 @@ BenchSift helps compare AI models by intelligence, coding, math, speed, latency,
 - Decision Index: ${absoluteUrl("/benchmarks/decision-index")}
 - Cyber Index: ${absoluteUrl("/benchmarks/cyber")}
 - AA-Robotics: ${absoluteUrl("/benchmarks/robotics")}
+- AA-PersonalityBench: ${absoluteUrl("/benchmarks/personality")}
 
 ## Agent discovery
 
