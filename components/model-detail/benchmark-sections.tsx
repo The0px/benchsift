@@ -194,7 +194,7 @@ export function CyberIndexCard({
 
 /**
  * AA Decision Index of the model, streamed after the page: the index and its
- * rank among every configuration AA measured, the five component scores, then
+ * rank among every configuration AA measured, the six Decision Scores, then
  * cost per million tasks and time per task.
  */
 export function DecisionIndexCard({ promise }: { promise: Promise<ModelDecisionIndex | null> }) {

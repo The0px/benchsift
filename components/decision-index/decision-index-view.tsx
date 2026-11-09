@@ -193,7 +193,7 @@ export function DecisionIndexView({ data, summary }: { data: Data; summary?: Rea
                   </div>
                   <ScoreBar value={row.index / 100} label={formatIndex(row.index)} className="w-20" />
                 </div>
-                <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5 border-t pt-3 text-xs sm:grid-cols-4">
+                <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5 border-t pt-3 text-xs sm:grid-cols-3">
                   {DECISION_SCORE_KEYS.map((key) => (
                     <div key={key} className="flex min-w-0 justify-between gap-2">
                       <dt className="truncate text-muted-foreground" title={copy.scores[key].label}>{copy.scores[key].short}</dt>

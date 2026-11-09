@@ -155,8 +155,11 @@ from `aa3dBreakdown.turns.p50`. Rows join the catalogue as FrontierCode's do.
 
 The Decision Index reads the `contestants` array of Artificial Analysis's
 `/evaluations/artificial-analysis-decision-index` RSC response: the published
-index, its five component scores (0–100), cost and time per task, and whether
-the contestant is a decision model or a language model. Ids are
+v2 index, the Decision Score (0–100) of each of its six evaluations
+(AA-Paperclip 30 %, AA-Symmetry, AA-Omniscience-Decision, HLE-MultiChoice and
+EvalSafe-O*NET-AA 15 % each, When2Call 10 %), cost and time per task, and
+whether the contestant is a decision model or a language model. Tests pin the
+weights to AA's published index. Ids are
 `<host>_<model>`; the model part joins the catalogue by slug or alias, then by
 the same slug with dots read as dashes (AA writes `jev-1.13` as `jev-1-13`)
 against catalogue slugs and OpenRouter model ids, and an ambiguous loose match
