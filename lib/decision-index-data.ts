@@ -2,31 +2,34 @@ import { findFlightElementProps, parseFlightRecords } from "./aa-flight";
 import { getCanonicalCreatorSlug, getCreatorDisplayName } from "./provider-map";
 
 /*
- * Artificial Analysis Decision Index, read from the `contestants` prop of the
+ * Artificial Analysis Decision Index v2, read from the `contestants` prop of the
  * `/evaluations/artificial-analysis-decision-index` RSC payload. AA publishes,
- * per hosted model, the index, its five component scores (0–100), the average
- * cost and time per task, and whether the model is a decision model (answers
- * through a decision API) or a language model answering in structured JSON.
+ * per hosted model, the index, the Decision Score of each of its six
+ * evaluations (0–100), the average cost and time per task, and whether the
+ * model is a decision model or a language model.
  */
 
 export type DecisionModelKind = "decision" | "llm";
 
+/** Ordered by their weight in the index (30 %, then 15 % each, then 10 %). */
 export const DECISION_SCORE_KEYS = [
-  "omniscience_accuracy",
-  "omniscience_non_hallucination",
+  "paperclip",
+  "symmetry",
+  "omniscience",
   "hle_multichoice",
+  "evalsafe_onet",
   "when2call",
-  "wildguardtest",
 ] as const;
 
 export type DecisionScoreKey = (typeof DECISION_SCORE_KEYS)[number];
 
 const SOURCE_SCORE_KEYS: Record<DecisionScoreKey, string> = {
-  omniscience_accuracy: "omniscienceAccuracy",
-  omniscience_non_hallucination: "omniscienceNonHallucinationRate",
-  hle_multichoice: "hleTextMcqAccuracy",
-  when2call: "when2callAccuracy",
-  wildguardtest: "wildguardtestAverageF1",
+  paperclip: "documentDecisionDecisionScore",
+  symmetry: "invarianceSymmetry",
+  omniscience: "omniscienceDecisionScore",
+  hle_multichoice: "hleDecisionScore",
+  evalsafe_onet: "evalsafeOnetDecisionScore",
+  when2call: "when2callDecisionScore",
 };
 
 export interface DecisionIndexRow {
@@ -41,7 +44,7 @@ export interface DecisionIndexRow {
   creator_name: string | null;
   /** Decision Index, 0–100. */
   index: number;
-  /** Component scores, 0–100; an unpublished one is null. */
+  /** Decision Score of each evaluation, 0–100; an unpublished one is null. */
   scores: Record<DecisionScoreKey, number | null>;
   cost_per_task_usd: number | null;
   time_per_task_seconds: number | null;

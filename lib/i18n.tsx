@@ -836,15 +836,16 @@ export interface Translations {
     axes: { cost: string; time: string };
     stats: { models: string; best: string; bestDecision: string; fastest: string };
     headers: { model: string; index: string; cost: string; time: string };
-    scores: Record<"omniscience_accuracy" | "omniscience_non_hallucination" | "hle_multichoice" | "when2call" | "wildguardtest", { short: string; label: string; hint: string }>;
+    scores: Record<"paperclip" | "symmetry" | "omniscience" | "hle_multichoice" | "evalsafe_onet" | "when2call", { short: string; label: string; hint: string }>;
     method: {
       tasks: string;
+      decisionScore: string;
       decisionModels: string;
       languageModels: string;
+      paperclip: string;
+      symmetry: string;
       omniscience: string;
-      hle: string;
-      when2call: string;
-      wildguard: string;
+      evalsafe: string;
       costs: string;
     };
   };
@@ -913,7 +914,7 @@ const T: Record<Lang, Translations> = {
         deepswe: { title: "Benchmark DeepSWE - BenchSift", description: "Voyez quels agents de code réussissent les longues tâches d'ingénierie logicielle de DeepSWE (Datacurve), avec taux de réussite, coût et durée côte à côte." },
         frontiercode: { title: "Benchmark FrontierCode - BenchSift", description: "Quels modèles d'IA écrivent des modifications qu'un mainteneur accepterait ? Scores FrontierCode sur de vrais dépôts open source, avec coût et temps par tâche." },
         aa3d: { title: "Benchmark AA-3D - BenchSift", description: "Comparez les modèles d'IA sur la création de scènes three.js interactives : Elo issu de votes à l'aveugle, coût par scène et tours d'agent, avec des scènes d'exemple." },
-        decisionIndex: { title: "Decision Index - BenchSift", description: "Comparez modèles de décision et modèles de langage en classification, appel d'outils, connaissances, hallucinations et raisonnement, avec coût et temps par tâche." },
+        decisionIndex: { title: "Decision Index - BenchSift", description: "Comparez modèles de décision et modèles de langage sur la lecture de documents, la constance, l'appel d'outils, les connaissances et le raisonnement, avec coût et temps par tâche." },
         cyber: { title: "Cyber Index - BenchSift", description: "Les performances des modèles d'IA en cybersécurité dans un seul classement : scores, refus de sécurité, modèles à accès restreint et coût par tâche." },
         robotics: { title: "AA-Robotics - BenchSift", description: "Des modèles de langage pilotent un bras robotique sur des tâches de table : score, coût et temps par tâche, comparés à un humain, avec les vidéos des essais." },
         about: { title: "À propos de BenchSift - Comparaison indépendante des modèles d'IA", description: "Pourquoi BenchSift simplifie la comparaison des modèles d'IA, d'où viennent ses données et pourquoi c'est une alternative à Artificial Analysis, pas un concurrent." },
@@ -1863,9 +1864,9 @@ const T: Record<Lang, Translations> = {
     },
     decisionIndex: {
       title: "Decision Index",
-      description: "Classement Artificial Analysis des modèles décisionnels, qui choisissent parmi des options et en donnent les probabilités, face à des LLM qui répondent en JSON : classification, appel d'outils, connaissances, hallucinations et raisonnement.",
-      methodDescription: "L'Artificial Analysis Decision Index combine quatre évaluations. Chaque tâche présente un état, le texte sur lequel décider, et une ou plusieurs questions à choix nommés ou par oui ou non ; le modèle répond à toutes les questions d'une tâche en un seul appel.",
-      indexHint: "Moyenne à parts égales de quatre évaluations, sur 100 : AA-Omniscience-Decision (précision et taux de non-hallucination pour moitié chacun), HLE-MultiChoice, When2Call et WildGuardTest.",
+      description: "Classement Artificial Analysis des modèles décisionnels, qui choisissent parmi des options et en donnent les probabilités, face à des LLM qui répondent en JSON : décisions sur documents, constance, appel d'outils, connaissances et raisonnement, notés sur la justesse et la calibration.",
+      methodDescription: "L'Artificial Analysis Decision Index v2 combine six évaluations. Chaque tâche présente un état, le texte sur lequel décider, et une ou plusieurs questions à choix nommés ou par oui ou non ; le modèle répond à toutes les questions d'une tâche en un seul appel et donne une probabilité à sa réponse.",
+      indexHint: "Moyenne pondérée des Decision Scores de six évaluations, sur 100 : AA-Paperclip 30 %, AA-Symmetry, AA-Omniscience-Decision, HLE-MultiChoice et EvalSafe-O*NET-AA 15 % chacune, When2Call 10 %.",
       empty: "Données Decision Index indisponibles pour l'instant.",
       sourceNote: "Données via Artificial Analysis, Decision Index.",
       viewOnSource: "Voir sur Artificial Analysis",
@@ -1890,20 +1891,22 @@ const T: Record<Lang, Translations> = {
         time: "Durée / tâche",
       },
       scores: {
-        omniscience_accuracy: { short: "Précision", label: "AA-Omniscience-Decision · précision", hint: "Part des 500 questions de connaissances privées d'AA-Omniscience répondues correctement, parmi quatre réponses et « je ne sais pas »." },
-        omniscience_non_hallucination: { short: "Non-halluc.", label: "AA-Omniscience-Decision · non-hallucination", hint: "100 × (1 − taux d'hallucination) : parmi les questions manquées, la part répondue par « je ne sais pas » plutôt que par une mauvaise réponse." },
-        hle_multichoice: { short: "HLE", label: "HLE-MultiChoice", hint: "Précision sur les 513 questions à choix multiple sans image de Humanity's Last Exam (raisonnement)." },
-        when2call: { short: "When2Call", label: "When2Call", hint: "Précision sur 3 423 tâches d'appel d'outils de NVIDIA : répondre, appeler un outil, demander une précision ou dire ne pas pouvoir répondre." },
-        wildguardtest: { short: "WildGuard", label: "WildGuardTest", hint: "F1 moyen sur une évaluation de classification de sécurité (prompts et réponses nuisibles, refus)." },
+        paperclip: { short: "Paperclip", label: "AA-Paperclip", hint: "Decision Score sur 1 500 documents privés (CV, reçus, factures, articles de recherche), chacun avec cinq décisions et dix faits à extraire, notés comme une seule décision : un document n'est juste que si ses 15 réponses le sont." },
+        symmetry: { short: "Symmetry", label: "AA-Symmetry", hint: "Constance de la réponse choisie et de sa probabilité sur 120 questions et leurs 440 variantes (options réordonnées, étiquettes échangées, oui ou non inversé). S'abstenir souvent élève ce score." },
+        omniscience: { short: "Omniscience", label: "AA-Omniscience-Decision", hint: "Decision Score sur des questions de connaissances privées d'AA-Omniscience, avec « je ne sais pas » formulé de dix façons." },
+        hle_multichoice: { short: "HLE", label: "HLE-MultiChoice", hint: "Decision Score sur les questions à choix multiple sans image de Humanity's Last Exam (raisonnement), avec une option pour ne pas répondre." },
+        evalsafe_onet: { short: "O*NET", label: "EvalSafe-O*NET-AA", hint: "Decision Score sur l'implémentation par Artificial Analysis du benchmark O*NET de TypeSafe AI." },
+        when2call: { short: "When2Call", label: "When2Call", hint: "Decision Score sur les tâches d'appel d'outils de NVIDIA : répondre, appeler un outil, demander une précision ou dire ne pas pouvoir répondre." },
       },
       method: {
-        tasks: "L'index est la moyenne à parts égales (25 % chacune) d'AA-Omniscience-Decision, HLE-MultiChoice, When2Call et WildGuardTest ; AA-Omniscience-Decision compte pour moitié sa précision et pour moitié son taux de non-hallucination.",
-        decisionModels: "Les modèles décisionnels reçoivent l'état et les questions via leur API de décision et renvoient l'option choisie avec une probabilité par option ; pour un oui ou non, la réponse est oui à partir d'une probabilité de 0,5.",
-        languageModels: "Les LLM reçoivent un prompt système fixe, l'état et les questions en texte, et répondent en JSON contraint par des sorties structurées.",
-        omniscience: "AA-Omniscience-Decision : 500 questions privées tirées d'AA-Omniscience, chacune avec quatre réponses, dont une correcte, et « je ne sais pas ».",
-        hle: "HLE-MultiChoice : les 513 questions à choix multiple sans image de Humanity's Last Exam, sur 2 500 au total.",
-        when2call: "When2Call : 3 423 des 3 652 tâches du jeu de test de NVIDIA ; AA écarte 229 tâches « demander une précision » ambiguës.",
-        wildguard: "WildGuardTest : évaluation de classification de sécurité, scorée en F1 moyen.",
+        tasks: "L'index pondère six évaluations : AA-Paperclip 30 %, AA-Symmetry, AA-Omniscience-Decision, HLE-MultiChoice et EvalSafe-O*NET-AA 15 % chacune, When2Call 10 %. WildGuardTest, saturé, en est retiré ; les jeux privés passent de 25 % à 45 % de l'index.",
+        decisionScore: "Le Decision Score note chaque question de 0 à 100 : 50 × (1 + c − (p − c)²), où p est la probabilité donnée à la réponse choisie et c vaut 1 si elle est juste. Une bonne réponse vaut plus de 50, une mauvaise moins, et la confiance déplace le score dans chaque moitié ; sur une évaluation, il vaut 50 × (1 + précision − score de Brier).",
+        decisionModels: "Les modèles décisionnels reçoivent l'état et les questions via leur API de décision et renvoient l'option choisie avec sa probabilité.",
+        languageModels: "Les LLM reçoivent un prompt système fixe, l'état et les questions en texte, et répondent en JSON avec la probabilité de leur réponse.",
+        paperclip: "AA-Paperclip : 1 500 documents privés, cinq décisions et dix extractions de faits chacun ; la confiance d'un document est le produit de ses 15 probabilités.",
+        symmetry: "AA-Symmetry : 120 questions de base et 440 variantes, pour mesurer si la réponse et sa probabilité restent les mêmes quand seule la forme change.",
+        omniscience: "AA-Omniscience-Decision v1.1 et HLE-MultiChoice v1.1 proposent de ne pas répondre, avec dix formulations de « je ne sais pas ».",
+        evalsafe: "EvalSafe-O*NET-AA : l'implémentation par Artificial Analysis du benchmark O*NET de TypeSafe AI.",
         costs: "Coût et durée sont les moyennes par tâche publiées par Artificial Analysis ; le coût est affiché pour 1 million de tâches, comme sur AA.",
       },
     },
@@ -1970,7 +1973,7 @@ const T: Record<Lang, Translations> = {
         deepswe: { title: "DeepSWE Benchmark - BenchSift", description: "See which coding agents solve DeepSWE's long software engineering tasks from Datacurve, with pass rates, cost and run time side by side." },
         frontiercode: { title: "FrontierCode Benchmark - BenchSift", description: "Which AI models write changes a maintainer would merge? FrontierCode scores on real open-source repositories, with cost and time per task." },
         aa3d: { title: "AA-3D Benchmark - BenchSift", description: "Compare AI models at building interactive three.js scenes: Elo from blind votes, cost per scene and agent turns, with sample scenes." },
-        decisionIndex: { title: "Decision Index - BenchSift", description: "Compare decision models and language models on classification, tool calling, knowledge, hallucination and reasoning, with cost and time per task." },
+        decisionIndex: { title: "Decision Index - BenchSift", description: "Compare decision models and language models on document reading, consistency, tool calling, knowledge and reasoning, with cost and time per task." },
         cyber: { title: "Cyber Index - BenchSift", description: "How AI models perform on cybersecurity tasks in one ranking: scores, safety refusals, trusted-access models and cost per task." },
         robotics: { title: "AA-Robotics - BenchSift", description: "Language models drive a robot arm on tabletop tasks: score, cost and time per task, compared with a human baseline, with run videos." },
         about: { title: "About BenchSift - Independent AI Model Comparison", description: "Learn why BenchSift offers a simpler way to compare AI models, where its data comes from, and why it is an alternative rather than a competitor to Artificial Analysis." },
@@ -2920,9 +2923,9 @@ const T: Record<Lang, Translations> = {
     },
     decisionIndex: {
       title: "Decision Index",
-      description: "Artificial Analysis leaderboard of decision models, which pick among options and return their probabilities, against language models answering in JSON: classification, tool calling, knowledge, hallucination and reasoning.",
-      methodDescription: "The Artificial Analysis Decision Index combines four evaluations. Each task poses a state, the text to decide about, and one or more questions with named options or a yes/no answer; the model answers all of a task's questions in a single call.",
-      indexHint: "Equal-weight average of four evaluations, out of 100: AA-Omniscience-Decision (accuracy and non-hallucination rate at half each), HLE-MultiChoice, When2Call and WildGuardTest.",
+      description: "Artificial Analysis leaderboard of decision models, which pick among options and return their probabilities, against language models answering in JSON: document decisions, consistency, tool calling, knowledge and reasoning, scored on correctness and calibration.",
+      methodDescription: "The Artificial Analysis Decision Index v2 combines six evaluations. Each task poses a state, the text to decide about, and one or more questions with named options or a yes/no answer; the model answers all of a task's questions in a single call and gives a probability for its answer.",
+      indexHint: "Weighted average of the Decision Scores of six evaluations, out of 100: AA-Paperclip 30%, AA-Symmetry, AA-Omniscience-Decision, HLE-MultiChoice and EvalSafe-O*NET-AA 15% each, When2Call 10%.",
       empty: "Decision Index data unavailable for now.",
       sourceNote: "Data via Artificial Analysis, Decision Index.",
       viewOnSource: "View on Artificial Analysis",
@@ -2947,20 +2950,22 @@ const T: Record<Lang, Translations> = {
         time: "Time / task",
       },
       scores: {
-        omniscience_accuracy: { short: "Accuracy", label: "AA-Omniscience-Decision · accuracy", hint: "Share of the 500 private AA-Omniscience knowledge questions answered correctly, among four answers and \"I don't know\"." },
-        omniscience_non_hallucination: { short: "Non-halluc.", label: "AA-Omniscience-Decision · non-hallucination", hint: "100 × (1 − hallucination rate): among missed questions, the share answered \"I don't know\" rather than with a wrong answer." },
-        hle_multichoice: { short: "HLE", label: "HLE-MultiChoice", hint: "Accuracy on the 513 text-only multiple-choice questions of Humanity's Last Exam (reasoning)." },
-        when2call: { short: "When2Call", label: "When2Call", hint: "Accuracy on 3,423 NVIDIA tool-calling tasks: answer, call a tool, ask for more information or say it cannot answer." },
-        wildguardtest: { short: "WildGuard", label: "WildGuardTest", hint: "Average F1 on a safety classification evaluation (harmful prompts and responses, refusals)." },
+        paperclip: { short: "Paperclip", label: "AA-Paperclip", hint: "Decision Score on 1,500 private documents (résumés, receipts, invoices, research papers), each with five decisions and ten facts to extract, scored as one decision: a document is right only if all 15 answers are." },
+        symmetry: { short: "Symmetry", label: "AA-Symmetry", hint: "Consistency of the chosen answer and its probability across 120 questions and their 440 variants (reordered options, swapped labels, negated yes/no). Abstaining often raises this score." },
+        omniscience: { short: "Omniscience", label: "AA-Omniscience-Decision", hint: "Decision Score on private AA-Omniscience knowledge questions, with \"I don't know\" worded ten different ways." },
+        hle_multichoice: { short: "HLE", label: "HLE-MultiChoice", hint: "Decision Score on the text-only multiple-choice questions of Humanity's Last Exam (reasoning), with an option to decline to answer." },
+        evalsafe_onet: { short: "O*NET", label: "EvalSafe-O*NET-AA", hint: "Decision Score on Artificial Analysis's implementation of TypeSafe AI's O*NET benchmark." },
+        when2call: { short: "When2Call", label: "When2Call", hint: "Decision Score on NVIDIA tool-calling tasks: answer, call a tool, ask for more information or say it cannot answer." },
       },
       method: {
-        tasks: "The index is the equal-weight average (25% each) of AA-Omniscience-Decision, HLE-MultiChoice, When2Call and WildGuardTest; AA-Omniscience-Decision counts its accuracy and its non-hallucination rate at half each.",
-        decisionModels: "Decision models receive the state and questions through their decision API and return the option they pick with a probability for every option; a yes/no answer is yes from a probability of 0.5.",
-        languageModels: "Language models receive a fixed system prompt and the state and questions as text, and answer in JSON enforced with structured outputs.",
-        omniscience: "AA-Omniscience-Decision: 500 private AA-Omniscience questions, each with four answers, one correct, and \"I don't know\".",
-        hle: "HLE-MultiChoice: the 513 text-only multiple-choice questions of Humanity's Last Exam, out of 2,500 in all.",
-        when2call: "When2Call: 3,423 of the 3,652 tasks in NVIDIA's test set; AA drops 229 ambiguous \"ask for more information\" tasks.",
-        wildguard: "WildGuardTest: a safety classification evaluation, scored by average F1.",
+        tasks: "The index weights six evaluations: AA-Paperclip 30%, AA-Symmetry, AA-Omniscience-Decision, HLE-MultiChoice and EvalSafe-O*NET-AA 15% each, When2Call 10%. WildGuardTest, saturated, is removed; private datasets rise from 25% to 45% of the index.",
+        decisionScore: "The Decision Score rates each question from 0 to 100: 50 × (1 + c − (p − c)²), where p is the probability given to the chosen answer and c is 1 if it is correct. A right answer scores above 50, a wrong one below, and confidence moves the score within each half; over an evaluation it equals 50 × (1 + accuracy − Brier score).",
+        decisionModels: "Decision models receive the state and questions through their decision API and return the option they pick with its probability.",
+        languageModels: "Language models receive a fixed system prompt and the state and questions as text, and answer in JSON with the probability of their answer.",
+        paperclip: "AA-Paperclip: 1,500 private documents with five decisions and ten fact extractions each; a document's confidence is the product of its 15 probabilities.",
+        symmetry: "AA-Symmetry: 120 base questions and 440 variants, measuring whether the answer and its probability hold when only the wording changes.",
+        omniscience: "AA-Omniscience-Decision v1.1 and HLE-MultiChoice v1.1 offer a way to decline, with ten wordings of \"I don't know\".",
+        evalsafe: "EvalSafe-O*NET-AA: Artificial Analysis's implementation of TypeSafe AI's O*NET benchmark.",
         costs: "Cost and time are the per-task averages Artificial Analysis publishes; cost is shown per 1 million tasks, as on AA.",
       },
     },
