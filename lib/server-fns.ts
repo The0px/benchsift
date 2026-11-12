@@ -56,6 +56,7 @@ import {
 } from "@/lib/compare-pairs";
 import { resolveModelSlug } from "./model-identity";
 import { withinRenderBudget } from "@/lib/html-cache";
+import { creatorProfile, type CreatorProfile } from "@/lib/creator-profile";
 
 // Loaders also run inside cookie-personalised SSR documents. Never mark those
 // documents public; the server snapshot already avoids repeated data work.
@@ -141,6 +142,16 @@ export const fetchModelCapabilities = createServerFn({ method: "GET" })
     // A cached render is not held for a cold scrape: it goes out without
     // these details and is rendered again, with them, about 30 s later.
     return withinRenderBudget(getLLMModelSupplementary(data), {});
+  });
+
+/** A creator's profile from the catalogue, with the date of the catalogue it reads. */
+export const fetchCreatorProfile = createServerFn({ method: "GET" })
+  .validator((slug: string) => slug)
+  .handler(async ({ data }): Promise<(CreatorProfile & { updatedAt: string | null }) | null> => {
+    if (typeof data !== "string" || !isSafeSlug(data)) return null;
+    setResponseCache();
+    const profile = creatorProfile(await getLLMModels(), data);
+    return profile ? { ...profile, updatedAt: await catalogueRefreshedAt() } : null;
   });
 
 /** Lightweight search options + the selected, enriched comparison models. */

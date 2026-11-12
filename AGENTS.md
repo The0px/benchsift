@@ -31,6 +31,7 @@ disagree with this file, correct this file in the same change.
 | Benchmark pages | `lib/<benchmark>-data.ts` (parser, client-safe), `lib/<benchmark>.ts` (server-only fetch), `components/<benchmark>/`, `src/routes/benchmarks/` |
 | Artificial Analysis page payloads | `lib/aa-flight.ts` |
 | Identity and exclusions | `lib/provider-map.ts`, `lib/openrouter-model-filter.ts`, `lib/model-identity.ts` |
+| Creator profiles | `lib/creator-profile.ts` (aggregation, client-safe), `components/creator/`, `src/routes/creators/` |
 | Translations, locale, SEO | `lib/i18n.tsx`, `lib/locale.ts`, `lib/seo.ts`, `lib/route-seo.ts` |
 | Shared UI | `components/ui/`, `components/benchmark-page.tsx`, `src/styles/globals.css` |
 

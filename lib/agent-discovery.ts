@@ -323,6 +323,7 @@ BenchSift helps compare AI models by intelligence, coding, math, speed, latency,
 - Cyber Index: ${absoluteUrl("/benchmarks/cyber")}
 - AA-Robotics: ${absoluteUrl("/benchmarks/robotics")}
 - AA-PersonalityBench: ${absoluteUrl("/benchmarks/personality")}
+- Creator profiles: ${absoluteUrl("/creators/{slug}")} (for example ${absoluteUrl("/creators/google")})
 
 ## Agent discovery
 
@@ -371,6 +372,7 @@ Suggested agent flow:
 1. Open the homepage.
 2. Search for the model or provider.
 3. Follow the matching \`/models/{slug}\` link for detailed pricing, speed, benchmark, and capability data.
+4. Follow a creator name to its \`/creators/{slug}\` profile for all of that creator's models, best scores and ranks, prices, and open-weights models.
 `,
   },
   {

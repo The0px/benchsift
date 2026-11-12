@@ -6,6 +6,7 @@ import {
   Plus,
   SlidersHorizontal,
 } from "@/components/icons";
+import { CreatorName } from "@/components/creator-name";
 import { Link } from "@/components/link";
 import { ModelProviderIcon } from "@/components/model-provider-icon";
 import { Badge } from "@/components/ui/badge";
@@ -207,7 +208,7 @@ export function ModelCatalogPage({
                 id={`catalog-provider-${group.models[0].model_creator.slug}`}
                 className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground"
               >
-                {group.provider}
+                <CreatorName slug={group.models[0].model_creator.slug} name={group.provider} />
               </h2>
               <span className="font-mono text-[11px] tabular-nums text-muted-foreground/70">
                 {group.models.length}

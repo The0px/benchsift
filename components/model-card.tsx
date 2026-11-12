@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
 import { useCompare } from "@/lib/compare-store";
 import { ModelProviderIcon } from "@/components/model-provider-icon";
-import { CreatorMark } from "@/components/creator-mark";
+import { CreatorName } from "@/components/creator-name";
 import { ModelAvailabilityBadge } from "@/components/model-availability";
 import { StealthBadge } from "./stealth-history";
 import { getModelLogoKey } from "@/lib/provider-map";
@@ -62,7 +62,7 @@ export function ModelCard({ model, sort }: { model: LLMModel; sort?: SortKey }) 
               {model.name}
             </Link>
           </h3>
-          <p className="mt-1 text-xs text-muted-foreground"><CreatorMark slug={model.model_creator.slug} />{creator}</p>
+          <p className="mt-1 text-xs text-muted-foreground"><CreatorName slug={model.model_creator.slug} name={model.model_creator.name} className="relative z-10" /></p>
         </div>
         <Button
           type="button"

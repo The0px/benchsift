@@ -2,7 +2,7 @@ import { Link as RouterLink } from "@tanstack/react-router";
 import { Boxes, GitCompareArrows } from "@/components/icons";
 import { Link } from "@/components/link";
 import { ModelProviderIcon } from "@/components/model-provider-icon";
-import { CreatorMark } from "@/components/creator-mark";
+import { CreatorName } from "@/components/creator-name";
 import { Button } from "@/components/ui/button";
 import { formatMoney, formatNumber, formatSpeed } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
@@ -56,8 +56,7 @@ export function SimilarModelsCard({ model, similar }: { model: LLMModel; similar
                 {entry.name}
               </Link>
               <p className="truncate text-xs text-muted-foreground">
-                <CreatorMark slug={entry.creatorSlug} />
-                {entry.creatorName}
+                <CreatorName slug={entry.creatorSlug} name={entry.creatorName} />
                 <span className="sm:hidden"> · {formatMoney(entry.price, lang)} · {formatSpeed(entry.speed, lang)}</span>
               </p>
             </div>

@@ -15,6 +15,7 @@ import {
   shouldIndexModelPage,
 } from "@/lib/model-metrics";
 import { canonicalVariantSlug } from "@/lib/model-reasoning";
+import { creatorProfileHref } from "@/lib/provider-map";
 
 export const Route = createFileRoute("/models/$slug")({
   loader: async ({ params }) => {
@@ -67,7 +68,7 @@ export const Route = createFileRoute("/models/$slug")({
           : "noindex, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
         jsonLd: [breadcrumbJsonLd(lang, [
           { name: t.seo.breadcrumb.home, path: "/" },
-          { name: model.model_creator.name, path: `/?provider=${encodeURIComponent(model.model_creator.slug)}` },
+          { name: model.model_creator.name, path: creatorProfileHref(model.model_creator.slug) ?? `/?provider=${encodeURIComponent(model.model_creator.slug)}` },
           { name: model.name, path: `/models/${model.slug}` },
         ]), {
           "@context": "https://schema.org",

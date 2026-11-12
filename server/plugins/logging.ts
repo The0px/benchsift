@@ -13,6 +13,7 @@ export default definePlugin((app) => {
     const failed = response.status >= 400;
     if (!failed && (path === "/health" || /^\/(?:assets|logos|fonts)\//.test(path) || /favicon/.test(path))) return;
     const route = path.startsWith("/models/") ? "/models/:slug"
+      : path.startsWith("/creators/") ? "/creators/:slug"
       : path.startsWith("/_serverFn/") ? "/_serverFn/:function"
       : ["/", "/compare", "/models", "/about", "/privacy", "/legal", "/accessibility", "/api/cron/refresh", "/api/cron/status", "/health", "/agents/coding", "/benchmarks/deepswe", "/benchmarks/frontiercode", "/benchmarks/aa-3d", "/benchmarks/decision-index", "/benchmarks/robotics", "/benchmarks/personality"].includes(path) ? path : "/other";
     logEvent(response.status >= 500 ? "error" : failed ? "warn" : "info", "http.response", {

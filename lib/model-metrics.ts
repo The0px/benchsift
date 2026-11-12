@@ -188,7 +188,7 @@ export function outputModalities(model: LLMModel): Set<string> {
   return modalities;
 }
 
-function inputModalities(model: LLMModel): Set<string> {
+export function inputModalities(model: LLMModel): Set<string> {
   const modalities = new Set<string>();
   for (const modality of model.openrouter_input_modalities ?? []) {
     modalities.add(modality);

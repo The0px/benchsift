@@ -5,7 +5,7 @@ import { Check, Plus } from "@/components/icons";
 import { SortButton } from "@/components/sort-button";
 import { Link } from "@/components/link";
 import { ModelProviderIcon } from "@/components/model-provider-icon";
-import { CreatorMark } from "@/components/creator-mark";
+import { CreatorName } from "@/components/creator-name";
 import { ModelAvailabilityBadge } from "@/components/model-availability";
 import { StealthBadge } from "@/components/stealth-history";
 import { Button } from "@/components/ui/button";
@@ -95,8 +95,7 @@ export function ModelTable({
                         {model.name}
                       </Link>
                       <p className="flex min-w-0 items-center gap-1.5 truncate text-xs text-muted-foreground">
-                        <CreatorMark slug={model.model_creator.slug} className="mr-0 mt-0" />
-                        <span className="truncate">{model.model_creator.slug === "stealth" ? t.stealth.unknownCreator : model.model_creator.name}</span>
+                        <CreatorName slug={model.model_creator.slug} name={model.model_creator.name} className="truncate" />
                         {model.reasoning_model && <span className="shrink-0">· {t.detail.reasoning}</span>}
                         {isOpenWeightsModel(model) && <span className="shrink-0">· {t.card.openWeightsBadge}</span>}
                       </p>

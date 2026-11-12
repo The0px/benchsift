@@ -156,6 +156,25 @@ export function metricRanks(models: LLMModel[], model: LLMModel): Partial<Record
   return ranks;
 }
 
+/** A model's value on a ranked metric, or null when it is not measured on it. */
+export function rankedMetricValue(model: LLMModel, key: RankedMetric): number | null {
+  return RANKED_METRICS[key]?.value(model) ?? null;
+}
+
+/** Whether a lower value ranks first on this metric (price, latency, cost). */
+export function ranksLowerFirst(key: RankedMetric): boolean {
+  return RANKED_METRICS[key]?.better === "lower";
+}
+
+/** Rank of a model on one metric, or null when it is not measured on it. */
+export function metricRank(models: LLMModel[], model: LLMModel, key: RankedMetric): MetricRank | null {
+  const metric = RANKED_METRICS[key];
+  const value = metric?.value(model);
+  if (!metric || value == null) return null;
+  const values = rankTable(models, key);
+  return { rank: countBetter(values, value, metric.better) + 1, total: values.length };
+}
+
 /* --------------------------------------------------------- similar models */
 
 export interface SimilarModel {

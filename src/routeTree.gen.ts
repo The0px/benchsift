@@ -31,6 +31,7 @@ import { Route as BenchmarksFrontiercodeRouteImport } from './routes/benchmarks/
 import { Route as BenchmarksPersonalityRouteImport } from './routes/benchmarks/personality'
 import { Route as BenchmarksRoboticsRouteImport } from './routes/benchmarks/robotics'
 import { Route as ComparePairRouteImport } from './routes/compare_.$pair'
+import { Route as CreatorsSlugRouteImport } from './routes/creators/$slug'
 import { Route as DocsApiRouteImport } from './routes/docs/api'
 import { Route as ModelsIndexRouteImport } from './routes/models/index'
 import { Route as ModelsSlugRouteImport } from './routes/models/$slug'
@@ -155,6 +156,11 @@ const ComparePairRoute = ComparePairRouteImport.update({
   path: '/compare/$pair',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CreatorsSlugRoute = CreatorsSlugRouteImport.update({
+  id: '/creators/$slug',
+  path: '/creators/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DocsApiRoute = DocsApiRouteImport.update({
   id: '/docs/api',
   path: '/docs/api',
@@ -239,6 +245,7 @@ export interface FileRoutesByFullPath {
   '/benchmarks/personality': typeof BenchmarksPersonalityRoute
   '/benchmarks/robotics': typeof BenchmarksRoboticsRoute
   '/compare/$pair': typeof ComparePairRoute
+  '/creators/$slug': typeof CreatorsSlugRoute
   '/docs/api': typeof DocsApiRoute
   '/models/$slug': typeof ModelsSlugRoute
   '/models/': typeof ModelsIndexRoute
@@ -274,6 +281,7 @@ export interface FileRoutesByTo {
   '/benchmarks/personality': typeof BenchmarksPersonalityRoute
   '/benchmarks/robotics': typeof BenchmarksRoboticsRoute
   '/compare/$pair': typeof ComparePairRoute
+  '/creators/$slug': typeof CreatorsSlugRoute
   '/docs/api': typeof DocsApiRoute
   '/models/$slug': typeof ModelsSlugRoute
   '/models': typeof ModelsIndexRoute
@@ -310,6 +318,7 @@ export interface FileRoutesById {
   '/benchmarks/personality': typeof BenchmarksPersonalityRoute
   '/benchmarks/robotics': typeof BenchmarksRoboticsRoute
   '/compare_/$pair': typeof ComparePairRoute
+  '/creators/$slug': typeof CreatorsSlugRoute
   '/docs/api': typeof DocsApiRoute
   '/models/$slug': typeof ModelsSlugRoute
   '/models/': typeof ModelsIndexRoute
@@ -347,6 +356,7 @@ export interface FileRouteTypes {
     | '/benchmarks/personality'
     | '/benchmarks/robotics'
     | '/compare/$pair'
+    | '/creators/$slug'
     | '/docs/api'
     | '/models/$slug'
     | '/models/'
@@ -382,6 +392,7 @@ export interface FileRouteTypes {
     | '/benchmarks/personality'
     | '/benchmarks/robotics'
     | '/compare/$pair'
+    | '/creators/$slug'
     | '/docs/api'
     | '/models/$slug'
     | '/models'
@@ -417,6 +428,7 @@ export interface FileRouteTypes {
     | '/benchmarks/personality'
     | '/benchmarks/robotics'
     | '/compare_/$pair'
+    | '/creators/$slug'
     | '/docs/api'
     | '/models/$slug'
     | '/models/'
@@ -453,6 +465,7 @@ export interface RootRouteChildren {
   BenchmarksPersonalityRoute: typeof BenchmarksPersonalityRoute
   BenchmarksRoboticsRoute: typeof BenchmarksRoboticsRoute
   ComparePairRoute: typeof ComparePairRoute
+  CreatorsSlugRoute: typeof CreatorsSlugRoute
   DocsApiRoute: typeof DocsApiRoute
   ModelsSlugRoute: typeof ModelsSlugRoute
   ModelsIndexRoute: typeof ModelsIndexRoute
@@ -622,6 +635,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ComparePairRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/creators/$slug': {
+      id: '/creators/$slug'
+      path: '/creators/$slug'
+      fullPath: '/creators/$slug'
+      preLoaderRoute: typeof CreatorsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/docs/api': {
       id: '/docs/api'
       path: '/docs/api'
@@ -725,6 +745,7 @@ const rootRouteChildren: RootRouteChildren = {
   BenchmarksPersonalityRoute: BenchmarksPersonalityRoute,
   BenchmarksRoboticsRoute: BenchmarksRoboticsRoute,
   ComparePairRoute: ComparePairRoute,
+  CreatorsSlugRoute: CreatorsSlugRoute,
   DocsApiRoute: DocsApiRoute,
   ModelsSlugRoute: ModelsSlugRoute,
   ModelsIndexRoute: ModelsIndexRoute,
