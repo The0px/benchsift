@@ -1,7 +1,7 @@
 import { Link } from "@/components/link";
 import { X } from "@/components/icons";
 import { ModelProviderIcon } from "@/components/model-provider-icon";
-import { CreatorMark } from "@/components/creator-mark";
+import { CreatorName } from "@/components/creator-name";
 import { Button } from "@/components/ui/button";
 import type { LLMModel } from "@/lib/model-types";
 import { useI18n } from "@/lib/i18n";
@@ -64,7 +64,7 @@ export function ComparedModel({
         >
           {model.name}
         </Link>
-        <p className="truncate text-xs text-muted-foreground"><CreatorMark slug={model.model_creator.slug} />{model.model_creator.name}</p>
+        <p className="truncate text-xs text-muted-foreground"><CreatorName slug={model.model_creator.slug} name={model.model_creator.name} /></p>
       </div>
       <Button
         type="button"

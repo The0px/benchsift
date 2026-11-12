@@ -3,7 +3,7 @@ import { Brain, Check, Plus, Unlock } from "@/components/icons";
 import { AccessRestrictionBadge } from "@/components/model-availability";
 import { Link } from "@/components/link";
 import { ModelProviderIcon } from "@/components/model-provider-icon";
-import { CreatorMark } from "@/components/creator-mark";
+import { CreatorName } from "@/components/creator-name";
 import { Button } from "@/components/ui/button";
 import { useCompare } from "@/lib/compare-store";
 import { formatMoney, formatNumber, formatPercent, formatSpeed, formatTokens } from "@/lib/format";
@@ -106,7 +106,6 @@ export function RankedModelRow({
   const primaryValue = formatMetric(metric, primaryRaw, lang);
   // Price ranks cheapest first, so a bar against the top value would read backwards.
   const share = metric !== "price_asc" && best && primaryRaw != null ? Math.min(Math.max(primaryRaw / best, 0), 1) : null;
-  const creator = model.model_creator.slug === "stealth" ? t.stealth.unknownCreator : model.model_creator.name;
 
   return (
     <li
@@ -128,14 +127,16 @@ export function RankedModelRow({
         <ModelProviderIcon provider={getModelLogoKey(model.slug, model.model_creator.slug)} size={32} iconUrl={model.provider_icon_url} />
       </span>
 
-      <Link
-        href={`/models/${model.slug}`}
-        className="min-w-0 rounded-md py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      >
-        <span title={model.name} className="line-clamp-2 break-words text-sm font-medium leading-5 sm:block sm:truncate sm:text-[15px]">{model.name}</span>
+      <div className="min-w-0 py-1">
+        <Link
+          href={`/models/${model.slug}`}
+          title={model.name}
+          className="line-clamp-2 rounded-md break-words text-sm font-medium leading-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:block sm:truncate sm:text-[15px]"
+        >
+          {model.name}
+        </Link>
         <span className="block text-xs text-muted-foreground sm:truncate">
-          <CreatorMark slug={model.model_creator.slug} />
-          {creator}
+          <CreatorName slug={model.model_creator.slug} name={model.model_creator.name} />
           {/* Phones hide the extra columns, so their values join the creator line. */}
           {secondaryMetrics(metric).map((key) => {
             const value = normalRankingValue(model, key);
@@ -144,7 +145,7 @@ export function RankedModelRow({
         </span>
         <RowBadges model={model} />
         <StealthBadge model={model} />
-      </Link>
+      </div>
 
       <span
         className="flex flex-col items-end gap-1 text-right text-sm font-semibold tabular-nums tracking-tight sm:text-base"

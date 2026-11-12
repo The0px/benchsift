@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { localizedUrl } from "@/lib/seo";
 import { LOCALES } from "@/lib/locale";
 import { readModelsCacheSummary } from "@/lib/cron-cache";
+import { getLLMModels } from "@/lib/api";
+import { creatorProfileIndex } from "@/lib/creator-profile";
 
 interface SitemapEntry {
   /** Unprefixed page path; each language gets its own <url>. */
@@ -34,6 +36,12 @@ function escapeXml(value: string): string {
 async function catalogueDate(): Promise<string | undefined> {
   const summary = await readModelsCacheSummary().catch(() => null);
   return summary?.refreshedAtMs ? new Date(summary.refreshedAtMs).toISOString().slice(0, 10) : undefined;
+}
+
+/** Profiles of the creators with at least one indexed model page, the hubs that lead to them. */
+async function creatorPaths(): Promise<string[]> {
+  const models = await getLLMModels().catch(() => []);
+  return creatorProfileIndex(models).filter((creator) => creator.indexable).map((creator) => `/creators/${creator.slug}`);
 }
 
 /** Each version lists every language version, itself included, and the x-default. */
@@ -69,10 +77,10 @@ export const Route = createFileRoute("/sitemap.xml")({
         });
         const live = (path: string): SitemapEntry => ({ path, changeFrequency: "daily", priority: 0.8 });
 
-        // Pillar pages only, until Search Console reports them indexed. Model
-        // pages, comparison pairs and legal pages stay crawlable through
-        // internal links but are left out, so the crawl budget goes to the
-        // pages that lead to them.
+        // Pillar pages and creator profiles only, until Search Console reports
+        // them indexed. Model pages, comparison pairs and legal pages stay
+        // crawlable through internal links but are left out, so the crawl
+        // budget goes to the pages that lead to them.
         const entries: SitemapEntry[] = [
           catalogue("/", 1),
           catalogue("/models", 0.9),
@@ -86,6 +94,7 @@ export const Route = createFileRoute("/sitemap.xml")({
           catalogue("/benchmarks/cyber", 0.8),
           live("/benchmarks/robotics"),
           live("/benchmarks/personality"),
+          ...(await creatorPaths()).map((path) => catalogue(path, 0.7)),
         ];
 
         return new Response(renderSitemap(entries), {

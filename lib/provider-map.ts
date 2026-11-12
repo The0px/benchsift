@@ -198,6 +198,34 @@ export function getCanonicalCreatorSlug(creatorSlug: string): string {
   return CREATOR_CANONICAL_SLUG[slug] ?? slug;
 }
 
+/**
+ * Sources that list one company under two creator slugs: Artificial Analysis
+ * files Nova under "aws" and Titan or Polly under "amazon", OpenRouter files
+ * Qwen under "qwen" while Artificial Analysis credits Alibaba. A creator
+ * profile gathers them under the company. The catalogue keeps each model's
+ * own creator slug, which its filters and logos read.
+ */
+const CREATOR_PROFILE_SLUG: Record<string, string> = {
+  aws: "amazon",
+  qwen: "alibaba",
+};
+
+const SAFE_CREATOR_SLUG = /^[a-z0-9][a-z0-9._-]{0,79}$/;
+
+/** Slug of the creator profile a model belongs to, or null when it has none (stealth or unsafe slug). */
+export function getCreatorProfileSlug(creatorSlug: string | null | undefined): string | null {
+  if (!creatorSlug) return null;
+  const canonical = getCanonicalCreatorSlug(creatorSlug);
+  const slug = CREATOR_PROFILE_SLUG[canonical] ?? canonical;
+  return slug !== "stealth" && SAFE_CREATOR_SLUG.test(slug) ? slug : null;
+}
+
+/** Address of a creator profile, or null when the creator has none. */
+export function creatorProfileHref(creatorSlug: string | null | undefined): string | null {
+  const slug = getCreatorProfileSlug(creatorSlug);
+  return slug ? `/creators/${slug}` : null;
+}
+
 export function getProviderKey(creatorSlug: string): string {
   const slug = getCanonicalCreatorSlug(creatorSlug);
   return CREATOR_TO_PROVIDER[slug] ?? slug;

@@ -1,11 +1,12 @@
 import { Suspense, use } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { StealthBadge } from "@/components/stealth-history";
-import { Brain, ExternalLink, GitCompareArrows, Lock, Unlock, Check } from "@/components/icons";
+import { Brain, GitCompareArrows, Lock, Unlock, Check } from "@/components/icons";
 import { InfoTip } from "@/components/info-tip";
 import { ModelAvailabilityBadge } from "@/components/model-availability";
 import { ModelProviderIcon } from "@/components/model-provider-icon";
-import { CreatorMark } from "@/components/creator-mark";
+import { CreatorName } from "@/components/creator-name";
+import { SourceLink } from "@/components/source-link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { LLMModel } from "@/lib/model-types";
@@ -33,20 +34,6 @@ function ScrapedBadges({ promise, restricted }: { promise: Promise<Caps>; restri
       {caps.is_open_weights === true && <Badge variant="outline"><Unlock data-icon="inline-start" />{t.detail.openWeights}</Badge>}
       {caps.is_open_weights === false && <Badge variant="outline" className="text-muted-foreground"><Lock data-icon="inline-start" />{t.detail.closedWeights}</Badge>}
     </>
-  );
-}
-
-function SourceLink({ href, label }: { href: string; label: string }) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="inline-flex items-center gap-1 rounded-md border bg-card px-2 py-0.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-    >
-      <ExternalLink aria-hidden="true" className="size-3" />
-      {label}
-    </a>
   );
 }
 
@@ -135,7 +122,7 @@ export function ModelHero({
             <ModelProviderIcon provider={getModelLogoKey(model.slug, model.model_creator.slug)} size={44} iconUrl={model.provider_icon_url} />
           </span>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm text-muted-foreground"><CreatorMark slug={model.model_creator.slug} size={16} />{model.model_creator.name}</p>
+            <p className="truncate text-sm text-muted-foreground"><CreatorName slug={model.model_creator.slug} name={model.model_creator.name} markSize={16} /></p>
             <h1 className="mt-0.5 text-balance break-words text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">{title}</h1>
             {qualifier && <p className="mt-1 text-sm leading-5 text-muted-foreground">{qualifier}</p>}
             <div className="mt-3 flex flex-wrap items-center gap-2">

@@ -245,42 +245,48 @@ export function toModelDetailData(
   };
 }
 
-export function collapseReasoningVariants(models: LLMModel[]): LLMModel[] {
-  const descriptors = models.map((model, index) => ({
-    model,
-    index,
-    descriptor: describeReasoningVariant(model),
-  }));
-  const groups = new Map<string, typeof descriptors>();
-
-  for (const entry of descriptors) {
-    const group = groups.get(entry.descriptor.familyKey) ?? [];
-    group.push(entry);
-    groups.set(entry.descriptor.familyKey, group);
+/**
+ * The catalogue grouped as the collapsed views list it: one entry per
+ * reasoning family, every variant kept, in the order of first appearance.
+ */
+export function reasoningFamilies(models: LLMModel[]): ModelReasoningFamily[] {
+  const groups = new Map<string, ModelReasoningVariant[]>();
+  for (const model of models) {
+    const descriptor = describeReasoningVariant(model);
+    const group = groups.get(descriptor.familyKey) ?? [];
+    group.push({ model, descriptor });
+    groups.set(descriptor.familyKey, group);
   }
 
-  const collapsed: Array<{ model: LLMModel; index: number }> = [];
+  const families: Array<{ family: ModelReasoningFamily; index: number }> = [];
+  const position = new Map(models.map((model, index) => [model, index]));
   for (const group of groups.values()) {
     const isReasoningFamily =
       group.length > 1 && group.some((entry) => entry.descriptor.explicit);
     if (!isReasoningFamily) {
-      collapsed.push(...group.map(({ model, index }) => ({ model, index })));
+      for (const entry of group) {
+        families.push({
+          index: position.get(entry.model)!,
+          family: { familyKey: entry.descriptor.familyKey, familyName: entry.model.name, variants: [entry] },
+        });
+      }
       continue;
     }
-
-    const family: ModelReasoningFamily = {
-      familyKey: group[0].descriptor.familyKey,
-      familyName: group[0].descriptor.familyName,
-      variants: group.map(({ model, descriptor }) => ({ model, descriptor })),
-    };
-    const canonical = getCanonicalReasoningVariant(family);
-    collapsed.push({
-      index: Math.min(...group.map((entry) => entry.index)),
-      model: { ...canonical.model, name: family.familyName },
+    families.push({
+      index: Math.min(...group.map((entry) => position.get(entry.model)!)),
+      family: { familyKey: group[0].descriptor.familyKey, familyName: group[0].descriptor.familyName, variants: group },
     });
   }
 
-  return collapsed
-    .sort((a, b) => a.index - b.index)
-    .map(({ model }) => model);
+  return families.sort((a, b) => a.index - b.index).map(({ family }) => family);
+}
+
+/** The model a collapsed view lists for a family, named after the family. */
+export function collapsedFamilyModel(family: ModelReasoningFamily): LLMModel {
+  if (family.variants.length === 1) return family.variants[0].model;
+  return { ...getCanonicalReasoningVariant(family).model, name: family.familyName };
+}
+
+export function collapseReasoningVariants(models: LLMModel[]): LLMModel[] {
+  return reasoningFamilies(models).map(collapsedFamilyModel);
 }

@@ -73,6 +73,30 @@ export function WebMcpProvider() {
         }),
       },
       {
+        name: "open_creator_profile",
+        description:
+          "Open the BenchSift profile of an AI model creator: its models, best scores and ranks, prices, open-weights models and capabilities.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            creator: {
+              type: "string",
+              description: "Creator slug as BenchSift lists it, for example google, openai or anthropic.",
+              pattern: "^[a-z0-9][a-z0-9._-]{0,79}$",
+            },
+          },
+          required: ["creator"],
+          additionalProperties: false,
+        },
+        execute: ({ creator }) => {
+          const slug = typeof creator === "string" ? creator.trim().toLowerCase() : "";
+          if (!/^[a-z0-9][a-z0-9._-]{0,79}$/.test(slug)) return { error: "invalid_creator" };
+          const path = `/creators/${slug}`;
+          window.location.assign(path);
+          return { url: new URL(path, window.location.origin).href };
+        },
+      },
+      {
         name: "open_benchsift_page",
         description:
           "Navigate to a primary BenchSift page for model discovery, comparison, coding benchmarks, AA-3D, the Decision Index, the Cyber Index, AA-Robotics, or AA-PersonalityBench.",

@@ -28,6 +28,11 @@ export interface Translations {
       categories: Record<"text" | "image" | "audio" | "video" | "embeddings" | "rerank" | "transcription" | "decisions" | "unknown", string>;
     };
     breadcrumb: { home: string; models: string; compare: string };
+    /** A creator profile: its title, and a description built from its counts. */
+    creator: {
+      title: (name: string) => string;
+      description: (name: string, models: number, leader: string | null) => string;
+    };
     /** Prepended to a benchmark page's description: the current leader. */
     leaderLead: (benchmark: string, leader: string, score: string) => string;
   };
@@ -362,6 +367,59 @@ export interface Translations {
     pagination: string;
     previous: string;
     next: string;
+  };
+  creator: {
+    eyebrow: string;
+    description: (name: string) => string;
+    sourceNote: string;
+    alsoListedAs: (slugs: string) => string;
+    exploreCatalog: string;
+    profileLink: (name: string) => string;
+    stats: {
+      models: string;
+      modelsDetail: (configurations: number) => string;
+      openWeights: string;
+      openWeightsDetail: (count: number, total: number) => string;
+      latest: string;
+      first: (date: string) => string;
+      medianPrice: string;
+      priceDetail: (min: string, max: string, measured: number) => string;
+      noValue: string;
+    };
+    bestTitle: string;
+    bestHint: string;
+    metrics: Record<"artificial_analysis_intelligence_index" | "artificial_analysis_coding_index" | "artificial_analysis_math_index" | "agentic_index" | "speed" | "price", string>;
+    openRouterRank: string;
+    openRouterRankHint: string;
+    overviewTitle: string;
+    categoriesTitle: string;
+    categories: Record<"text" | "image" | "audio" | "video" | "embeddings" | "rerank" | "transcription" | "decisions" | "unknown", string>;
+    releasesTitle: string;
+    capabilitiesTitle: string;
+    capabilitiesHint: string;
+    capabilities: {
+      reasoning: string;
+      openWeights: string;
+      toolCalling: string;
+      structuredOutputs: string;
+      input: string;
+      output: string;
+    };
+    countOf: (count: number, total: number) => string;
+    modalityLabels: Record<string, string>;
+    huggingFaceTitle: string;
+    huggingFaceHint: string;
+    repositories: (count: number) => string;
+    licenses: string;
+    modelsTitle: string;
+    modelsHint: string;
+    sortLabel: string;
+    sort: { score: string; recent: string };
+    headers: { model: string; released: string; intelligence: string; price: string; speed: string };
+    configurations: (count: number) => string;
+    globalRank: (rank: number, total: number) => string;
+    methodTitle: string;
+    methodBody: string;
   };
   glossary: {
     intelligence: string;
@@ -975,6 +1033,10 @@ const T: Record<Lang, Translations> = {
         },
       },
       breadcrumb: { home: "BenchSift", models: "Modèles", compare: "Comparer" },
+      creator: {
+        title: (name) => `Modèles d'IA de ${name} : scores, rangs et prix - BenchSift`,
+        description: (name, models, leader) => `Les ${models} modèle${models > 1 ? "s" : ""} de ${name} sur BenchSift${leader ? `, dont ${leader} en tête de ses scores` : ""} : benchmarks, rangs, prix, poids ouverts, capacités et dates de sortie.`,
+      },
       leaderLead: (benchmark, leader, score) => `${benchmark} sur BenchSift : ${leader} est en tête avec ${score}.`,
     },
     summary: {
@@ -1375,6 +1437,76 @@ const T: Record<Lang, Translations> = {
       pagination: "Pagination du catalogue de modèles",
       previous: "Précédent",
       next: "Suivant",
+    },
+    creator: {
+      eyebrow: "Créateur de modèles",
+      description: (name) => `Tous les modèles de ${name} présents dans le catalogue BenchSift, avec leurs scores, rangs, prix et capacités tels que les sources les publient.`,
+      sourceNote: "Chiffres calculés par BenchSift à partir du catalogue : Artificial Analysis, OpenRouter, Models.dev et Hugging Face. Une valeur qu'aucun modèle ne porte n'est pas affichée.",
+      alsoListedAs: (slugs) => `Les sources le listent aussi sous ${slugs}.`,
+      exploreCatalog: "Voir dans le catalogue",
+      profileLink: (name) => `Profil de ${name}`,
+      stats: {
+        models: "Modèles",
+        modelsDetail: (configurations) => `${configurations} configuration${configurations > 1 ? "s" : ""}, niveaux de raisonnement compris`,
+        openWeights: "Poids ouverts",
+        openWeightsDetail: (count, total) => `${count} modèle${count > 1 ? "s" : ""} sur ${total}`,
+        latest: "Dernière sortie",
+        first: (date) => `Premier modèle daté : ${date}`,
+        medianPrice: "Prix médian",
+        priceDetail: (min, max, measured) => `De ${min} à ${max} par million de tokens, sur ${measured} modèle${measured > 1 ? "s" : ""} tarifé${measured > 1 ? "s" : ""}`,
+        noValue: "Non publié",
+      },
+      bestTitle: "Meilleurs scores et rangs",
+      bestHint: "Le meilleur modèle du créateur sur chaque mesure, et son rang parmi tous les modèles mesurés du catalogue.",
+      metrics: {
+        artificial_analysis_intelligence_index: "Intelligence",
+        artificial_analysis_coding_index: "Code",
+        artificial_analysis_math_index: "Maths",
+        agentic_index: "Agentique",
+        speed: "Vitesse de sortie",
+        price: "Prix le plus bas",
+      },
+      openRouterRank: "Classement OpenRouter",
+      openRouterRankHint: "Meilleure place d'un de ses modèles dans le Top Models hebdomadaire d'OpenRouter.",
+      overviewTitle: "Vue d'ensemble",
+      categoriesTitle: "Types de modèles",
+      categories: {
+        text: "Texte",
+        image: "Image",
+        audio: "Audio",
+        video: "Vidéo",
+        embeddings: "Embeddings",
+        rerank: "Reranking",
+        transcription: "Transcription",
+        decisions: "Décisions",
+        unknown: "Autres",
+      },
+      releasesTitle: "Sorties par année",
+      capabilitiesTitle: "Capacités",
+      capabilitiesHint: "Nombre de modèles qui déclarent chaque capacité. Les appels d'outils et sorties structurées viennent d'OpenRouter.",
+      capabilities: {
+        reasoning: "Raisonnement",
+        openWeights: "Poids ouverts",
+        toolCalling: "Appels d'outils",
+        structuredOutputs: "Sorties structurées",
+        input: "En entrée",
+        output: "En sortie",
+      },
+      countOf: (count, total) => `${count} sur ${total}`,
+      modalityLabels: { text: "Texte", image: "Image", audio: "Audio", speech: "Voix", video: "Vidéo", file: "Fichiers", embeddings: "Embeddings", transcription: "Transcription", rerank: "Reranking", decisions: "Décisions" },
+      huggingFaceTitle: "Hugging Face",
+      huggingFaceHint: "Dépôts officiels confirmés par les métadonnées Hugging Face.",
+      repositories: (count) => `${count} dépôt${count > 1 ? "s" : ""} officiel${count > 1 ? "s" : ""}`,
+      licenses: "Licences",
+      modelsTitle: "Modèles",
+      modelsHint: "Les niveaux de raisonnement sont réunis en une entrée. Le rang est celui du catalogue entier : le tri ne le change pas.",
+      sortLabel: "Trier les modèles",
+      sort: { score: "Score", recent: "Plus récents" },
+      headers: { model: "Modèle", released: "Sortie", intelligence: "Intelligence", price: "Prix / 1M", speed: "Vitesse" },
+      configurations: (count) => `${count} configurations`,
+      globalRank: (rank, total) => `n° ${rank} sur ${total}`,
+      methodTitle: "D'où viennent ces chiffres",
+      methodBody: "Chaque modèle du catalogue est rattaché à son créateur par l'identité qu'Artificial Analysis publie, ou celle d'OpenRouter et de Models.dev pour les modèles qu'il ne suit pas. Les comptes regroupent les niveaux de raisonnement d'un même modèle. Les rangs comparent chaque mesure à tous les modèles mesurés du catalogue, configurations comprises, comme sur les fiches modèles. Le prix est le prix combiné publié (3 tokens d'entrée pour 1 de sortie).",
     },
     glossary: {
       intelligence: "Indice composite d'Artificial Analysis (0–100) qui agrège ses évaluations indépendantes de raisonnement, connaissances, code et agents.",
@@ -2072,6 +2204,10 @@ const T: Record<Lang, Translations> = {
         },
       },
       breadcrumb: { home: "BenchSift", models: "Models", compare: "Compare" },
+      creator: {
+        title: (name) => `${name} AI models: scores, ranks and prices - BenchSift`,
+        description: (name, models, leader) => `The ${models} ${name} model${models > 1 ? "s" : ""} on BenchSift${leader ? `, led by ${leader}` : ""}: benchmarks, ranks, prices, open weights, capabilities and release dates.`,
+      },
       leaderLead: (benchmark, leader, score) => `${benchmark} on BenchSift: ${leader} leads with ${score}.`,
     },
     summary: {
@@ -2472,6 +2608,76 @@ const T: Record<Lang, Translations> = {
       pagination: "Model catalog pagination",
       previous: "Previous",
       next: "Next",
+    },
+    creator: {
+      eyebrow: "Model creator",
+      description: (name) => `Every ${name} model in the BenchSift catalogue, with its scores, ranks, prices and capabilities as the sources publish them.`,
+      sourceNote: "Figures computed by BenchSift from the catalogue: Artificial Analysis, OpenRouter, Models.dev and Hugging Face. A value no model carries is not shown.",
+      alsoListedAs: (slugs) => `The sources also list it as ${slugs}.`,
+      exploreCatalog: "View in the catalogue",
+      profileLink: (name) => `${name} profile`,
+      stats: {
+        models: "Models",
+        modelsDetail: (configurations) => `${configurations} configuration${configurations > 1 ? "s" : ""}, reasoning levels included`,
+        openWeights: "Open weights",
+        openWeightsDetail: (count, total) => `${count} of ${total} model${total > 1 ? "s" : ""}`,
+        latest: "Latest release",
+        first: (date) => `First dated model: ${date}`,
+        medianPrice: "Median price",
+        priceDetail: (min, max, measured) => `${min} to ${max} per million tokens, across ${measured} priced model${measured > 1 ? "s" : ""}`,
+        noValue: "Not published",
+      },
+      bestTitle: "Best scores and ranks",
+      bestHint: "The creator's best model on each measure, and its rank among every measured model in the catalogue.",
+      metrics: {
+        artificial_analysis_intelligence_index: "Intelligence",
+        artificial_analysis_coding_index: "Coding",
+        artificial_analysis_math_index: "Math",
+        agentic_index: "Agentic",
+        speed: "Output speed",
+        price: "Lowest price",
+      },
+      openRouterRank: "OpenRouter ranking",
+      openRouterRankHint: "Best position of one of its models in OpenRouter's weekly Top Models.",
+      overviewTitle: "Overview",
+      categoriesTitle: "Model types",
+      categories: {
+        text: "Text",
+        image: "Image",
+        audio: "Audio",
+        video: "Video",
+        embeddings: "Embeddings",
+        rerank: "Reranking",
+        transcription: "Transcription",
+        decisions: "Decisions",
+        unknown: "Other",
+      },
+      releasesTitle: "Releases by year",
+      capabilitiesTitle: "Capabilities",
+      capabilitiesHint: "Number of models that declare each capability. Tool calling and structured outputs come from OpenRouter.",
+      capabilities: {
+        reasoning: "Reasoning",
+        openWeights: "Open weights",
+        toolCalling: "Tool calling",
+        structuredOutputs: "Structured outputs",
+        input: "Input",
+        output: "Output",
+      },
+      countOf: (count, total) => `${count} of ${total}`,
+      modalityLabels: { text: "Text", image: "Image", audio: "Audio", speech: "Speech", video: "Video", file: "Files", embeddings: "Embeddings", transcription: "Transcription", rerank: "Reranking", decisions: "Decisions" },
+      huggingFaceTitle: "Hugging Face",
+      huggingFaceHint: "Official repositories confirmed by Hugging Face metadata.",
+      repositories: (count) => `${count} official repositor${count > 1 ? "ies" : "y"}`,
+      licenses: "Licenses",
+      modelsTitle: "Models",
+      modelsHint: "Reasoning levels are folded into one entry. The rank is the whole catalogue's: sorting does not change it.",
+      sortLabel: "Sort models",
+      sort: { score: "Score", recent: "Newest" },
+      headers: { model: "Model", released: "Released", intelligence: "Intelligence", price: "Price / 1M", speed: "Speed" },
+      configurations: (count) => `${count} configurations`,
+      globalRank: (rank, total) => `#${rank} of ${total}`,
+      methodTitle: "Where these figures come from",
+      methodBody: "Each catalogue model is tied to its creator by the identity Artificial Analysis publishes, or OpenRouter's and Models.dev's for models it does not track. Counts fold the reasoning levels of one model together. Ranks compare each measure with every measured model in the catalogue, configurations included, as model pages do. The price is the published blended price (3 input tokens to 1 output token).",
     },
     glossary: {
       intelligence: "Artificial Analysis composite index (0–100) combining its independent reasoning, knowledge, coding and agentic evaluations.",
