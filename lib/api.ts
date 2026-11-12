@@ -38,7 +38,7 @@ import {
 import { mergeModelHistory } from "@/lib/model-history";
 import { mergeIdentityMetadata, mergeRevealedStealthModels, restoreStealthIdentity } from "./model-identity";
 import { enrichStealthModels } from "./stealth-source";
-import { logEvent } from "./logger";
+import { errorReason, logEvent } from "./logger";
 import { isExcludedOpenRouterModelId, isOpenRouterFreeVariantId } from "@/lib/openrouter-model-filter";
 import {
   AA_LEGACY_LANGUAGE_MODELS_ENDPOINT,
@@ -160,7 +160,7 @@ async function apiFetchPage<T>(endpoint: string): Promise<AAApiEnvelope<T>> {
       }
       return json;
     } catch (e) {
-      logEvent("warn", "source.aa_request_interrupted", { attempt: i + 1 });
+      logEvent("warn", "source.aa_request_interrupted", { attempt: i + 1, reason: errorReason(e) });
       lastError = new Error(
         `Artificial Analysis ${endpoint} failed with key ${i + 1}/${keys.length}: ${errorMessage(e)}`,
         { cause: e },
@@ -425,8 +425,8 @@ async function fetchAACyberIndex(): Promise<AACyberIndexEntry[]> {
     const entries = parseAACyberIndex(await res.text());
     if (entries.length === 0) logEvent("warn", "source.aa_cyber_empty");
     return entries;
-  } catch {
-    logEvent("warn", "source.aa_cyber_interrupted");
+  } catch (error) {
+    logEvent("warn", "source.aa_cyber_interrupted", { reason: errorReason(error) });
     return [];
   }
 }
@@ -451,8 +451,8 @@ async function fetchAAIndexV5(): Promise<AAIndexV5Entry[]> {
     const entries = parseAAIndexV5(await res.text());
     if (entries.length === 0) logEvent("warn", "source.aa_index_v5_empty");
     return entries;
-  } catch {
-    logEvent("warn", "source.aa_index_v5_interrupted");
+  } catch (error) {
+    logEvent("warn", "source.aa_index_v5_interrupted", { reason: errorReason(error) });
     return [];
   }
 }
@@ -566,9 +566,9 @@ async function fetchModelsForCron(): Promise<CronFetchResult> {
   logEvent("info", "refresh.sources_started");
   const retriesBefore = getFetchRetryCount();
   const [apiModels, validSlugs, mediaModels, cyberEntries, indexV5Entries] = await Promise.all([
-    fetchAALanguageModels(),
-    scrapeAllModelSlugs(),
-    fetchAAMediaModels(apiFetchPreferred),
+    atStage("aa_language", fetchAALanguageModels()),
+    atStage("aa_sitemap", scrapeAllModelSlugs()),
+    atStage("aa_media", fetchAAMediaModels(apiFetchPreferred)),
     fetchAACyberIndex(),
     fetchAAIndexV5(),
   ]);
@@ -592,7 +592,7 @@ async function fetchModelsForCron(): Promise<CronFetchResult> {
   if (missingSlugs.length === 0) {
     const cyber = mergeAACyberIndex(apiAndMediaModels, cyberEntries);
     const indexV5 = mergeAAIndexV5(cyber.models, indexV5Entries);
-    const models = await enrichCronModelsWithSources(indexV5.models, validSlugSet);
+    const models = await atStage("enrichment", enrichCronModelsWithSources(indexV5.models, validSlugSet));
     return {
       models,
       stats: {
@@ -623,7 +623,7 @@ async function fetchModelsForCron(): Promise<CronFetchResult> {
 
   const cyber = mergeAACyberIndex([...apiAndMediaModels, ...extraModels], cyberEntries);
   const indexV5 = mergeAAIndexV5(cyber.models, indexV5Entries);
-  const models = await enrichCronModelsWithSources(indexV5.models, validSlugSet);
+  const models = await atStage("enrichment", enrichCronModelsWithSources(indexV5.models, validSlugSet));
   return {
     models,
     stats: {
@@ -664,6 +664,19 @@ function sourceCoverageStats(models: LLMModel[]) {
  * Called by `src/routes/api/cron/refresh.ts`.
  */
 let refreshing: Promise<{ count: number; stats: CronFetchStats }> | undefined;
+/** Nomme la source fautive dans `refresh.failed`, le message restant hors des logs. */
+class RefreshStageError extends Error {
+  constructor(readonly stage: string, cause: unknown) {
+    super(`Refresh stage ${stage} failed`, { cause });
+  }
+}
+
+function atStage<T>(stage: string, work: Promise<T>): Promise<T> {
+  return work.catch((error: unknown) => {
+    throw error instanceof RefreshStageError ? error : new RefreshStageError(stage, error);
+  });
+}
+
 export function refreshModelsCache(): Promise<{ count: number; stats: CronFetchStats }> {
   if (!refreshing) {
     const started = Date.now();
@@ -672,7 +685,12 @@ export function refreshModelsCache(): Promise<{ count: number; stats: CronFetchS
       logEvent("info", "refresh.completed", { models: result.count, durationMs: Date.now() - started, ...result.stats });
       return result;
     }).catch((error) => {
-      logEvent("error", "refresh.failed", { durationMs: Date.now() - started, previousCachePreserved: true });
+      logEvent("error", "refresh.failed", {
+        stage: error instanceof RefreshStageError ? error.stage : "catalogue",
+        reason: errorReason(error instanceof RefreshStageError ? error.cause : error),
+        durationMs: Date.now() - started,
+        previousCachePreserved: true,
+      });
       throw error;
     }).finally(() => { refreshing = undefined; });
   } else logEvent("info", "refresh.joined_existing_job");
@@ -691,14 +709,14 @@ async function performModelsRefresh(): Promise<{ count: number; stats: CronFetch
     mergeHistoricalModelData,
   );
   logEvent("info", "refresh.stealth_started");
-  const models = normaliseCatalogModels(await enrichStealthModels(mergedCatalog.models));
+  const models = normaliseCatalogModels(await atStage("stealth", enrichStealthModels(mergedCatalog.models)));
   const completeStats: CronFetchStats = {
     ...stats,
     previousModels: previousModels.length,
     retainedHistoricalModels: mergedCatalog.retainedCount,
     ...sourceCoverageStats(models),
   };
-  await writeModelsCache(models, completeStats);
+  await atStage("cache_write", writeModelsCache(models, completeStats));
   if (models.length > 0) lastSuccessfulModels = models;
   return { count: models.length, stats: completeStats };
 }
