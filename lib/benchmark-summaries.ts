@@ -16,12 +16,16 @@ import type { FrontierMathModelInfo } from "@/lib/frontiermath-catalog";
 import type { FrontierMathData } from "@/lib/frontiermath-data";
 import type { CatalogRunInfo } from "@/lib/benchmark-run-catalog";
 import type { CursorBenchData } from "@/lib/cursorbench-data";
+import type { CodingAgent } from "@/lib/coding-agents";
+import type { TakeawayKey } from "@/lib/i18n";
 import { summarizeRanking, type RankingSummary } from "@/lib/data-summary";
 import { formatDuration, formatNumber, formatSeconds, formatPercent, formatSpeed, type DisplayLang } from "@/lib/format";
 
 export interface BenchmarkSummary {
   /** Name the page and its description use for the benchmark. */
   benchmark: string;
+  /** Page whose "what to take away" sentence follows the summary; null for none. */
+  page: TakeawayKey | null;
   summary: RankingSummary;
   /** When the data was published or retrieved, ISO 8601; null when unknown. */
   updatedAt: string | null;
@@ -44,6 +48,7 @@ const secondsPerTask = ({ time }: { time: number | null }, lang: DisplayLang) =>
 export function frontierCodeSummary(data: FrontierCodeData & { catalog: Record<string, FrontierCodeModelInfo> }): BenchmarkSummary {
   return {
     benchmark: "FrontierCode",
+    page: "frontiercode",
     summary: summarizeRanking(data.rows.map((row) => ({
       name: row.name,
       href: modelHref(data.catalog[row.slug]?.slug),
@@ -63,6 +68,7 @@ export function frontierCodeSummary(data: FrontierCodeData & { catalog: Record<s
 export function frontierMathSummary(data: FrontierMathData & { catalog: Record<string, FrontierMathModelInfo> }): BenchmarkSummary {
   return {
     benchmark: "FrontierMath",
+    page: "frontiermath",
     summary: summarizeRanking(data.tiers.tiers_1_3.map((row) => ({
       name: data.catalog[row.id]?.name ?? row.name,
       href: modelHref(data.catalog[row.id]?.slug),
@@ -81,6 +87,7 @@ export function frontierMathSummary(data: FrontierMathData & { catalog: Record<s
 export function cursorBenchSummary(data: CursorBenchData & { catalog: Record<string, CatalogRunInfo> }): BenchmarkSummary {
   return {
     benchmark: data.version ? `CursorBench ${data.version}` : "CursorBench",
+    page: "cursorbench",
     summary: summarizeRanking(data.rows.map((row) => ({
       name: row.id,
       href: modelHref(data.catalog[row.id]?.slug),
@@ -99,6 +106,7 @@ export function cursorBenchSummary(data: CursorBenchData & { catalog: Record<str
 export function aa3dSummary(data: Aa3dData & { catalog: Record<string, FrontierCodeModelInfo> }): BenchmarkSummary {
   return {
     benchmark: "AA-3D",
+    page: "aa3d",
     // An Elo has no zero, so a score-per-dollar ratio would mean nothing.
     summary: summarizeRanking(data.rows.map((row) => ({
       name: row.name,
@@ -117,6 +125,7 @@ export function aa3dSummary(data: Aa3dData & { catalog: Record<string, FrontierC
 export function decisionIndexSummary(data: DecisionIndexData & { catalog: Record<string, DecisionIndexModelInfo> }): BenchmarkSummary {
   return {
     benchmark: "Decision Index",
+    page: "decisionIndex",
     summary: summarizeRanking(data.rows.map((row) => ({
       name: row.name,
       href: modelHref(data.catalog[row.id]?.slug),
@@ -135,6 +144,7 @@ export function decisionIndexSummary(data: DecisionIndexData & { catalog: Record
 export function roboticsSummary(data: RoboticsData & { catalog: Record<string, FrontierCodeModelInfo> }): BenchmarkSummary {
   return {
     benchmark: "AA-Robotics",
+    page: "robotics",
     summary: summarizeRanking(data.rows.map((row) => ({
       name: row.harness ? `${row.name} (${row.harness})` : row.name,
       href: modelHref(data.catalog[row.slug]?.slug),
@@ -153,6 +163,7 @@ export function roboticsSummary(data: RoboticsData & { catalog: Record<string, F
 export function cyberSummary(data: CyberLeaderboard & { refreshed_at?: string | null }): BenchmarkSummary {
   return {
     benchmark: "Cyber Index",
+    page: "cyber",
     summary: summarizeRanking(data.rows.map((row) => ({
       name: row.name,
       href: modelHref(row.slug),
@@ -173,6 +184,7 @@ export function deepSweSummary(data: DeepSweData & { catalog: Record<string, Dee
   const rows = leaderboard?.rows ?? [];
   return {
     benchmark: "DeepSWE",
+    page: "deepswe",
     summary: summarizeRanking(rows.map((row) => {
       const info = data.catalog[deepSweCatalogKey(row.model, row.reasoning_effort)];
       const name = info?.name ?? deepSweFallbackName(row.model);
@@ -193,10 +205,29 @@ export function deepSweSummary(data: DeepSweData & { catalog: Record<string, Dee
   };
 }
 
+export function codingAgentsSummary(agents: CodingAgent[]): BenchmarkSummary {
+  return {
+    benchmark: "Coding Agent Index",
+    page: "agentsCoding",
+    summary: summarizeRanking(agents.map((agent) => ({
+      name: `${agent.agent_name} · ${agent.models.map((model) => model.name).join(" + ")}`,
+      score: agent.coding_agent_index,
+      cost: agent.cost_per_task_usd,
+      time: agent.time_per_task_seconds,
+    }))),
+    updatedAt: null,
+    unit: "results",
+    costUnit: "perTask",
+    formatScore: (value, lang) => formatNumber(value, lang, 1),
+    formatSpeed: secondsPerTask,
+  };
+}
+
 /** The home ranking: Intelligence Index, blended price, output speed. */
 export function homeSummary(summary: RankingSummary, updatedAt: string | null): BenchmarkSummary {
   return {
     benchmark: "Intelligence Index",
+    page: null,
     summary,
     updatedAt,
     unit: "models",

@@ -5,6 +5,7 @@ import { fetchComparePair } from "@/lib/server-fns";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { CompareWorkspace } from "@/components/compare/compare-workspace";
+import { ComparePairLinks } from "@/components/compare/compare-pair-links";
 import { Link } from "@/components/link";
 import { comparePairPath } from "@/lib/compare-pairs";
 import { formatMoney, formatNumber, formatSpeed, formatTokens, type DisplayLang } from "@/lib/format";
@@ -157,29 +158,12 @@ function ComparePairPage() {
           families={families}
           heading={a && b ? { title: t.comparePair.heading(a.name, b.name), intro: <PairIntro a={a} b={b} /> } : undefined}
         />
-        <nav aria-labelledby="related-comparisons" className="mt-10 border-t pt-6">
-          <h2 id="related-comparisons" className="text-base font-semibold">{related.length ? t.comparePair.related : t.comparePair.allCompare}</h2>
-          <ul className="mt-3 flex flex-wrap gap-2">
-            {related.map((item) => (
-              <li key={`${item.a.slug}-${item.b.slug}`}>
-                <Link
-                  href={comparePairPath(item.a.slug, item.b.slug)}
-                  className="inline-flex min-h-10 items-center rounded-lg border bg-card px-3 text-sm hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  {t.comparePair.heading(item.a.name, item.b.name)}
-                </Link>
-              </li>
-            ))}
-            <li>
-              <Link
-                href="/compare"
-                className="inline-flex min-h-10 items-center rounded-lg px-3 text-sm font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                {t.comparePair.allCompare}
-              </Link>
-            </li>
-          </ul>
-        </nav>
+        <ComparePairLinks
+          id="related-comparisons"
+          title={related.length ? t.comparePair.related : t.comparePair.allCompare}
+          pairs={related}
+          toComparator
+        />
       </main>
       <SiteFooter />
     </div>

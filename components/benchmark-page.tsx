@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import { ChevronDown, ExternalLink, type RuneIcon } from "@/components/icons";
 import { InfoTip } from "@/components/info-tip";
+import { LinkPills } from "@/components/link-pills";
+import { BENCHMARK_LINKS } from "@/components/nav-links";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -119,5 +121,21 @@ export function BenchmarkDisclosure({ title, children }: { title: string; childr
       </summary>
       <div className="disclosure-content border-t px-4 py-3 text-xs leading-5 text-muted-foreground">{children}</div>
     </details>
+  );
+}
+
+/** Links from a benchmark page to the other benchmarks, the catalogue and the comparator. */
+export function RelatedBenchmarks({ current }: { current: string }) {
+  const { t } = useI18n();
+  return (
+    <LinkPills
+      id="related-benchmarks"
+      title={t.nav.otherBenchmarks}
+      links={[
+        ...BENCHMARK_LINKS.filter((link) => link.href !== current).map((link) => ({ href: link.href, label: link.label(t) })),
+        { href: "/models", label: t.seoContent.relatedPages.models, secondary: true },
+        { href: "/compare", label: t.seoContent.relatedPages.compare, secondary: true },
+      ]}
+    />
   );
 }

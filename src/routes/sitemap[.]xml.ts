@@ -2,8 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { localizedUrl } from "@/lib/seo";
 import { LOCALES } from "@/lib/locale";
 import { readModelsCacheSummary } from "@/lib/cron-cache";
-import { getLLMModels } from "@/lib/api";
+import { getLLMModels, type LLMModel } from "@/lib/api";
 import { creatorProfileIndex } from "@/lib/creator-profile";
+import { getIndexableCatalogModels } from "@/lib/model-catalog";
 
 interface SitemapEntry {
   /** Unprefixed page path; each language gets its own <url>. */
@@ -39,9 +40,13 @@ async function catalogueDate(): Promise<string | undefined> {
 }
 
 /** Profiles of the creators with at least one indexed model page, the hubs that lead to them. */
-async function creatorPaths(): Promise<string[]> {
-  const models = await getLLMModels().catch(() => []);
+function creatorPaths(models: LLMModel[]): string[] {
   return creatorProfileIndex(models).filter((creator) => creator.indexable).map((creator) => `/creators/${creator.slug}`);
+}
+
+/** The indexed model pages: the ones the /models catalogue lists, one variant per family. */
+function modelPaths(models: LLMModel[]): string[] {
+  return getIndexableCatalogModels(models).map((model) => `/models/${encodeURIComponent(model.slug)}`);
 }
 
 /** Each version lists every language version, itself included, and the x-default. */
@@ -65,7 +70,7 @@ export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
       GET: async () => {
-        const updated = await catalogueDate();
+        const [updated, models] = await Promise.all([catalogueDate(), getLLMModels().catch((): LLMModel[] => [])]);
         // Catalogue pages carry the refresh date. Pages fed by separate live
         // sources or static text have no tracked date, so they omit lastmod
         // rather than claim today.
@@ -77,10 +82,10 @@ export const Route = createFileRoute("/sitemap.xml")({
         });
         const live = (path: string): SitemapEntry => ({ path, changeFrequency: "daily", priority: 0.8 });
 
-        // Pillar pages and creator profiles only, until Search Console reports
-        // them indexed. Model pages, comparison pairs and legal pages stay
-        // crawlable through internal links but are left out, so the crawl
-        // budget goes to the pages that lead to them.
+        // Pillar pages, creator profiles and the indexed model pages, which
+        // open on a summary written from their own measurements. Comparison
+        // pairs and legal pages stay crawlable through internal links but are
+        // left out, so the crawl budget goes to the pages that lead to them.
         const entries: SitemapEntry[] = [
           catalogue("/", 1),
           catalogue("/models", 0.9),
@@ -96,7 +101,8 @@ export const Route = createFileRoute("/sitemap.xml")({
           catalogue("/benchmarks/cyber", 0.8),
           live("/benchmarks/robotics"),
           live("/benchmarks/personality"),
-          ...(await creatorPaths()).map((path) => catalogue(path, 0.7)),
+          ...creatorPaths(models).map((path) => catalogue(path, 0.7)),
+          ...modelPaths(models).map((path) => catalogue(path, 0.6)),
         ];
 
         return new Response(renderSitemap(entries), {

@@ -82,3 +82,16 @@ export function relatedComparePairs(pairs: ComparePair[], a: string, b: string, 
     .filter((pair) => [a, b].includes(pair.a.slug) || [a, b].includes(pair.b.slug))
     .slice(0, limit);
 }
+
+/**
+ * A short list of popular pairs for the comparator's own page: each model
+ * against the next most used one, so every popular model appears without the
+ * most used one taking every link.
+ */
+export function featuredComparePairs(models: LLMModel[], limit = POPULAR_PAIR_MODELS): ComparePair[] {
+  const popular = popularPairModels(models, limit);
+  return popular.slice(1).map((model, index) => ({
+    a: { slug: popular[index].slug, name: popular[index].name },
+    b: { slug: model.slug, name: model.name },
+  }));
+}

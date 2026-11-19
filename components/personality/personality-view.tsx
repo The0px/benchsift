@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { AudioLines } from "@/components/icons";
+import { BenchmarkTakeaway } from "@/components/data-summary";
 import { BenchmarkDisclosure, BenchmarkHeader, ScoreBar, StatTiles } from "@/components/benchmark-page";
 import { CatalogSelect } from "@/components/catalog-select";
 import { CreatorMark } from "@/components/creator-mark";
@@ -85,7 +86,7 @@ export function PersonalityView({
 
   return (
     <div className="flex flex-col gap-6">
-      <BenchmarkHeader icon={AudioLines} title={copy.title} description={copy.description} source={source} />
+      <BenchmarkHeader icon={AudioLines} title={copy.title} description={copy.description} source={source} summary={<BenchmarkTakeaway page="personality" />} />
 
       <div className="relative">
         <PageCat kind="personality" className="absolute bottom-[calc(100%+1px)] right-6" />

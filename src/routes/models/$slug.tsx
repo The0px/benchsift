@@ -13,7 +13,9 @@ import {
   isTextOutputModel,
   mediaBenchmarkValues,
   shouldIndexModelPage,
+  textMetricValue,
 } from "@/lib/model-metrics";
+import { formatMoney, formatNumber, formatSpeed } from "@/lib/format";
 import { canonicalVariantSlug } from "@/lib/model-reasoning";
 import { creatorProfileHref } from "@/lib/provider-map";
 
@@ -44,11 +46,26 @@ export const Route = createFileRoute("/models/$slug")({
     const hasPricing = hasPricingData(model);
     const mediaBenchmark = mediaBenchmarkValues(model)[0];
     const creator = model.model_creator.name;
-    const description = hasMediaBenchmarks(model) && mediaBenchmark
-      ? t.seo.model.media(model.name, creator, categoryLabel, mediaBenchmark.label[lang])
-      : isTextOutputModel(model) && hasBenchmarks
-        ? t.seo.model.text(model.name, creator)
-        : t.seo.model.other(model.name, creator, categoryLabel, hasPricing);
+    // A measured score makes each description unique; without one the page
+    // falls back to what it covers.
+    const intelligence = textMetricValue(model, "artificial_analysis_intelligence_index");
+    const finite = (value: number | null | undefined) => (value != null && Number.isFinite(value) ? value : null);
+    const price = finite(model.pricing.price_1m_blended_3_to_1);
+    const speed = finite(model.median_output_tokens_per_second);
+    const description = intelligence !== null
+      ? t.seoContent.modelDescription({
+        name: model.name,
+        creator,
+        score: formatNumber(intelligence, lang),
+        rank: loaderData.ranks.artificial_analysis_intelligence_index ?? null,
+        price: price === null ? null : formatMoney(price, lang),
+        speed: speed === null || speed <= 0 ? null : formatSpeed(speed, lang),
+      })
+      : hasMediaBenchmarks(model) && mediaBenchmark
+        ? t.seo.model.media(model.name, creator, categoryLabel, mediaBenchmark.label[lang])
+        : isTextOutputModel(model) && hasBenchmarks
+          ? t.seo.model.text(model.name, creator)
+          : t.seo.model.other(model.name, creator, categoryLabel, hasPricing);
     const pageUrl = localizedUrl(`/models/${model.slug}`, lang);
     const firstUnitPrice = model.pricing.openrouter_display_prices?.[0];
     const offerPrice = model.pricing.price_1m_blended_3_to_1 ?? firstUnitPrice?.price ?? null;
@@ -57,7 +74,7 @@ export const Route = createFileRoute("/models/$slug")({
       : firstUnitPrice?.unit || undefined;
     return {
       ...seo({
-        title: `${model.name} - BenchSift`,
+        title: t.seoContent.modelTitle(model.name),
         description,
         lang,
         path: `/models/${model.slug}`,

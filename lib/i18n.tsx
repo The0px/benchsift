@@ -4,6 +4,11 @@ import { switchLocaleHref } from "./locale";
 
 export type Lang = "fr" | "en";
 
+/** French "de" before a name, elided before a vowel: "d'OpenAI", "de Google". */
+function frenchOf(name: string): string {
+  return /^[aeiouyàâéèêëîïôöûü]/i.test(name) ? "d'" : "de ";
+}
+
 /** English ordinal: 1st, 2nd, 3rd, 11th, 22nd. */
 function ordinal(value: number): string {
   const tens = value % 100;
@@ -14,6 +19,9 @@ function ordinal(value: number): string {
 export type SeoPageKey =
   | "home" | "models" | "compare" | "agentsCoding" | "deepswe" | "frontiercode" | "frontiermath" | "cursorbench" | "aa3d"
   | "decisionIndex" | "cyber" | "robotics" | "personality" | "about" | "privacy" | "legal" | "accessibility";
+
+/** Benchmark pages with a "what to take away" sentence. */
+export type TakeawayKey = "agentsCoding" | "deepswe" | "frontiercode" | "frontiermath" | "cursorbench" | "aa3d" | "decisionIndex" | "cyber" | "robotics" | "personality";
 
 export interface Translations {
   /** Page titles and descriptions for search results and link previews. */
@@ -51,6 +59,25 @@ export interface Translations {
     perScene: string;
     perMillion: string;
     perTaskTime: string;
+  };
+  /** Indexable prose of the content pages: written for readers first, search engines second. */
+  seoContent: {
+    /** What to take away from each benchmark page, after its data summary. */
+    takeaways: Record<TakeawayKey, string>;
+    homeAbout: {
+      title: string;
+      /** Paragraphs; `link` renders an internal link. */
+      paragraphs: (link: (href: string, label: string) => ReactNode) => ReactNode[];
+    };
+    /** Opening sentence of a model page, from its sourced specifications. */
+    modelFacts: (facts: { name: string; category: string; creator: ReactNode; creatorName: string; date: string | null; context: string | null }) => ReactNode;
+    modelOpenWeights: string;
+    modelPair: (pair: ReactNode) => ReactNode;
+    modelTitle: (name: string) => string;
+    /** Meta description of a model page with an Intelligence Index score. */
+    modelDescription: (facts: { name: string; creator: string; score: string; rank: { rank: number; total: number } | null; price: string | null; speed: string | null }) => string;
+    compareIntro: { title: string; body: string; popular: string };
+    relatedPages: { models: string; compare: string };
   };
   /** Banner offering the visitor's language when the page is in the other one. */
   langSuggestion: { message: string; action: string; dismiss: string };
@@ -1065,10 +1092,10 @@ const T: Record<Lang, Translations> = {
         cursorbench: { title: "Benchmark CursorBench - BenchSift", description: "Quels modèles d'IA réussissent les tâches de code ambiguës et multi-fichiers de CursorBench ? Scores publiés par Cursor, avec coût, tokens et étapes par tâche." },
         frontiercode: { title: "Benchmark FrontierCode - BenchSift", description: "Quels modèles d'IA écrivent des modifications qu'un mainteneur accepterait ? Scores FrontierCode sur de vrais dépôts open source, avec coût et temps par tâche." },
         aa3d: { title: "Benchmark AA-3D - BenchSift", description: "Comparez les modèles d'IA sur la création de scènes three.js interactives : Elo issu de votes à l'aveugle, coût par scène et tours d'agent, avec des scènes d'exemple." },
-        decisionIndex: { title: "Decision Index - BenchSift", description: "Comparez modèles de décision et modèles de langage sur la lecture de documents, la constance, l'appel d'outils, les connaissances et le raisonnement, avec coût et temps par tâche." },
-        cyber: { title: "Cyber Index - BenchSift", description: "Les performances des modèles d'IA en cybersécurité dans un seul classement : scores, refus de sécurité, modèles à accès restreint et coût par tâche." },
-        robotics: { title: "AA-Robotics - BenchSift", description: "Des modèles de langage pilotent un bras robotique sur des tâches de table : score, coût et temps par tâche, comparés à un humain, avec les vidéos des essais." },
-        personality: { title: "AA-PersonalityBench - BenchSift", description: "Quel modèle d'IA est le plus drôle, le plus direct ou le plus flagorneur ? Les 30 traits de personnalité d'AA-PersonalityBench, notés par un Elo pour chaque modèle." },
+        decisionIndex: { title: "Decision Index : benchmark de décision des modèles d'IA - BenchSift", description: "Comparez modèles de décision et modèles de langage sur la lecture de documents, la constance, l'appel d'outils, les connaissances et le raisonnement, avec coût et temps par tâche." },
+        cyber: { title: "Cyber Index : benchmark de cybersécurité des modèles d'IA - BenchSift", description: "Les performances des modèles d'IA en cybersécurité dans un seul classement : scores, refus de sécurité, modèles à accès restreint et coût par tâche." },
+        robotics: { title: "AA-Robotics : benchmark de robotique des modèles d'IA - BenchSift", description: "Des modèles de langage pilotent un bras robotique sur des tâches de table : score, coût et temps par tâche, comparés à un humain, avec les vidéos des essais." },
+        personality: { title: "AA-PersonalityBench : la personnalité des modèles d'IA - BenchSift", description: "Quel modèle d'IA est le plus drôle, le plus direct ou le plus flagorneur ? Les 30 traits de personnalité d'AA-PersonalityBench, notés par un Elo pour chaque modèle." },
         about: { title: "À propos de BenchSift - Comparaison indépendante des modèles d'IA", description: "Pourquoi BenchSift simplifie la comparaison des modèles d'IA, d'où viennent ses données et pourquoi c'est une alternative à Artificial Analysis, pas un concurrent." },
         privacy: { title: "Confidentialité | BenchSift", description: "Comment BenchSift traite la mesure d'audience, les cookies et vos données." },
         legal: { title: "Mentions légales | BenchSift", description: "Éditeur, hébergement, licence et sources des données de BenchSift." },
@@ -1115,6 +1142,40 @@ const T: Record<Lang, Translations> = {
       perScene: "par scène",
       perMillion: "par million de tokens",
       perTaskTime: "par tâche",
+    },
+    seoContent: {
+      takeaways: {
+        agentsCoding: "L'index note le couple agent et modèle : un même modèle peut se classer différemment dans Claude Code, Codex ou Cursor CLI, alors comparez des configurations plutôt que des modèles seuls.",
+        deepswe: "Chaque tâche est validée par un vérificateur programmé, et pass@1 est la part des tâches réussies du premier coup. Le niveau de raisonnement et l'outil d'agent changent à la fois le score et le coût : c'est pourquoi un même modèle peut apparaître plusieurs fois.",
+        frontiercode: "Une tentative vaut zéro si elle échoue à un contrôle bloquant ou va chercher la solution, et le score est la moyenne de trois tentatives par tâche : il récompense une modification correcte et acceptable par un mainteneur, pas un code qui passe seulement les tests.",
+        frontiermath: "Les problèmes sont inédits et leurs réponses vérifiées automatiquement : un modèle ne peut pas les avoir vus à l'entraînement. Chaque ligne est un réglage de raisonnement, et deux scores dont les intervalles à 95 % se chevauchent ne se départagent pas.",
+        cursorbench: "Cursor conçoit à la fois les tâches et l'agent qui les exécute : le classement reflète le travail dans Cursor, et le coût par tâche montre ce qu'un niveau de raisonnement plus élevé coûte pour quelques points de plus.",
+        aa3d: "L'Elo vient de votes humains à l'aveugle entre deux scènes : il classe une préférence, pas une note absolue, et un écart compris dans l'intervalle à 95 % affiché pour chaque modèle n'est pas significatif.",
+        decisionIndex: "L'index pondère six évaluations, AA-Paperclip comptant pour 30 % : un modèle peut mener au total tout en étant derrière sur l'une d'elles. Modèles de décision et modèles de langage y sont classés sur la même échelle.",
+        cyber: "Chaque résultat se partage entre réussites, blocages de sécurité et échecs : un blocage signifie que le modèle ou son fournisseur a refusé la tâche, donc un score plus bas n'est pas toujours un manque de compétence. Les modèles à accès restreint ne sont pas publics ; le filtre Disponibilité ne garde que ceux que tout le monde peut appeler.",
+        robotics: "Un modèle de langage pilote le bras robotique, et son score se lit face à celui d'un opérateur humain sur les mêmes tâches de table ; les vidéos des essais montrent où chaque tentative échoue.",
+        personality: "Ici, un Elo mesure à quel point un modèle montre un trait, pas sa qualité : un Elo élevé en flagornerie est un signal d'alerte, pas une victoire. C'est pourquoi cette page ne désigne aucun meneur global.",
+      },
+      homeAbout: {
+        title: "Qu'est-ce que BenchSift ?",
+        paragraphs: (link) => [
+          <>BenchSift est un catalogue indépendant et gratuit pour choisir un modèle d'IA. Il rassemble des mesures d'habitude éparpillées sur plusieurs sites : les benchmarks d'Artificial Analysis (intelligence, code, maths, vitesse et latence), les prix, capacités et classements d'usage d'OpenRouter, les fiches techniques de Models.dev et les preuves de poids ouverts publiées sur Hugging Face. Chaque chiffre renvoie à sa source, et une valeur que personne n'a publiée reste vide au lieu d'être estimée.</>,
+          <>Il s'adresse aux développeurs, aux équipes produit et aux curieux qui doivent choisir un modèle pour un vrai usage : un agent de code, un assistant conversationnel, le traitement de documents ou une tâche à gros volume au meilleur prix. Partez du classement ci-dessus, triez-le et filtrez-le, ouvrez la page d'un modèle pour voir son rang sur chaque benchmark, parcourez {link("/models", "tous les modèles")} ou placez jusqu'à quatre modèles côte à côte dans {link("/compare", "le comparateur")}.</>,
+          <>Là où beaucoup de comparateurs n'affichent qu'un classement ou les annonces des éditeurs, BenchSift garde visible la méthode de chaque source, regroupe les niveaux de raisonnement d'un même modèle sur une ligne et consacre des pages aux benchmarks que les tableaux habituels laissent de côté, comme {link("/benchmarks/deepswe", "DeepSWE")}, {link("/benchmarks/frontiercode", "FrontierCode")} ou le {link("/benchmarks/cyber", "Cyber Index")}. Tout le site existe en français et en anglais ; la page {link("/about", "À propos")} détaille les sources.</>,
+        ],
+      },
+      modelFacts: ({ name, category, creator, creatorName, date, context }) => <>{name} est un {category} {frenchOf(creatorName)}{creator}{date ? `, sorti le ${date}` : ""}{context ? `, avec une fenêtre de contexte de ${context} tokens` : ""}.</>,
+      modelOpenWeights: "Ses poids sont publiés ouvertement.",
+      modelPair: (pair) => <>Tous les benchmarks côte à côte : {pair}.</>,
+      modelTitle: (name) => `${name} : benchmarks, prix et vitesse - BenchSift`,
+      modelDescription: ({ name, creator, score, rank, price, speed }) =>
+        `${name} ${frenchOf(creator)}${creator} obtient ${score} à l'Intelligence Index d'Artificial Analysis${rank ? ` (rang ${rank.rank} sur ${rank.total})` : ""}${price ? `, coûte ${price} par million de tokens` : ""}${speed ? ` et produit ${speed}` : ""}. Benchmarks, prix, vitesse et capacités.`,
+      compareIntro: {
+        title: "Comment fonctionne le comparateur",
+        body: "Choisissez jusqu'à quatre modèles pour comparer dans un même tableau leurs benchmarks, leurs prix, leur vitesse, leur latence, leur fenêtre de contexte et leurs capacités. Seules les valeurs publiées par une source sont comparées, et la meilleure valeur d'une ligne n'est marquée que lorsque le sens « meilleur » est clair. La sélection reste dans l'adresse : vous pouvez la partager telle quelle.",
+        popular: "Comparaisons populaires",
+      },
+      relatedPages: { models: "Tous les modèles", compare: "Comparer des modèles" },
     },
     langSuggestion: {
       message: "Cette page existe en français.",
@@ -2315,10 +2376,10 @@ const T: Record<Lang, Translations> = {
         cursorbench: { title: "CursorBench Benchmark - BenchSift", description: "Which AI models solve CursorBench's ambiguous, multi-file coding tasks? Scores Cursor publishes, with cost, tokens and steps per task." },
         frontiercode: { title: "FrontierCode Benchmark - BenchSift", description: "Which AI models write changes a maintainer would merge? FrontierCode scores on real open-source repositories, with cost and time per task." },
         aa3d: { title: "AA-3D Benchmark - BenchSift", description: "Compare AI models at building interactive three.js scenes: Elo from blind votes, cost per scene and agent turns, with sample scenes." },
-        decisionIndex: { title: "Decision Index - BenchSift", description: "Compare decision models and language models on document reading, consistency, tool calling, knowledge and reasoning, with cost and time per task." },
-        cyber: { title: "Cyber Index - BenchSift", description: "How AI models perform on cybersecurity tasks in one ranking: scores, safety refusals, trusted-access models and cost per task." },
-        robotics: { title: "AA-Robotics - BenchSift", description: "Language models drive a robot arm on tabletop tasks: score, cost and time per task, compared with a human baseline, with run videos." },
-        personality: { title: "AA-PersonalityBench - BenchSift", description: "Which AI model is the funniest, the most direct or the most sycophantic? The 30 AA-PersonalityBench personality traits, rated with an Elo for each model." },
+        decisionIndex: { title: "Decision Index: AI Decision-Making Benchmark - BenchSift", description: "Compare decision models and language models on document reading, consistency, tool calling, knowledge and reasoning, with cost and time per task." },
+        cyber: { title: "Cyber Index: AI Cybersecurity Benchmark - BenchSift", description: "How AI models perform on cybersecurity tasks in one ranking: scores, safety refusals, trusted-access models and cost per task." },
+        robotics: { title: "AA-Robotics: AI Robot Arm Benchmark - BenchSift", description: "Language models drive a robot arm on tabletop tasks: score, cost and time per task, compared with a human baseline, with run videos." },
+        personality: { title: "AA-PersonalityBench: AI Model Personality Traits - BenchSift", description: "Which AI model is the funniest, the most direct or the most sycophantic? The 30 AA-PersonalityBench personality traits, rated with an Elo for each model." },
         about: { title: "About BenchSift - Independent AI Model Comparison", description: "Learn why BenchSift offers a simpler way to compare AI models, where its data comes from, and why it is an alternative rather than a competitor to Artificial Analysis." },
         privacy: { title: "Privacy | BenchSift", description: "How BenchSift handles analytics, cookies and your data." },
         legal: { title: "Legal | BenchSift", description: "Publisher, hosting, license and data sources of BenchSift." },
@@ -2365,6 +2426,40 @@ const T: Record<Lang, Translations> = {
       perScene: "per scene",
       perMillion: "per million tokens",
       perTaskTime: "per task",
+    },
+    seoContent: {
+      takeaways: {
+        agentsCoding: "The index scores the agent and the model together: the same model can rank differently in Claude Code, Codex or Cursor CLI, so compare configurations rather than models alone.",
+        deepswe: "Each task is checked by a program-based verifier, and pass@1 is the share of tasks solved on the first attempt. Reasoning effort and agent harness change both the score and the cost, which is why the same model can appear more than once.",
+        frontiercode: "An attempt scores zero if it fails a blocking check or looks up the solution, and the score is the mean of three attempts per task: it rewards a correct change a maintainer would accept, not code that merely passes tests.",
+        frontiermath: "The problems are unpublished and their answers checked automatically, so a model cannot have seen them in training. Each row is one reasoning setting, and two scores whose 95% intervals overlap do not separate.",
+        cursorbench: "Cursor designs both the tasks and the agent that runs them: the ranking reflects work inside Cursor, and the cost per task shows what a higher reasoning level costs for a few more points.",
+        aa3d: "The Elo comes from blind human votes between two scenes: it ranks a preference, not an absolute grade, and a gap inside the 95% interval shown for each model is not significant.",
+        decisionIndex: "The index weights six evaluations, with AA-Paperclip counting for 30%: a model can lead overall while trailing on one of them. Decision models and language models are ranked on the same scale.",
+        cyber: "Each result splits into successes, safety blocks and failures: a block means the model or its provider declined the task, so a lower score is not always a lack of skill. Trusted-access models are not public; the Availability filter keeps only the ones anyone can call.",
+        robotics: "A language model drives the robot arm, and its score reads against a human operator's on the same tabletop tasks; the run videos show where each attempt goes wrong.",
+        personality: "Here an Elo measures how strongly a model shows a trait, not how good it is: a high sycophancy Elo is a warning, not a win. That is why this page names no overall leader.",
+      },
+      homeAbout: {
+        title: "What is BenchSift?",
+        paragraphs: (link) => [
+          <>BenchSift is a free, independent catalogue for choosing an AI model. It brings together measurements that are usually spread across several sites: Artificial Analysis benchmarks (intelligence, coding, math, speed and latency), OpenRouter prices, capabilities and usage rankings, Models.dev specifications and the open-weights evidence published on Hugging Face. Every figure links back to its source, and a value nobody has published stays empty instead of being estimated.</>,
+          <>It is built for developers, product teams and curious readers who need a model for a real job: a coding agent, a chat assistant, a document pipeline or a high-volume task on a budget. Start from the ranking above, sort and filter it, open a model page to see where it ranks on each benchmark, browse {link("/models", "every model")} or put up to four models side by side in {link("/compare", "the comparator")}.</>,
+          <>Where many comparators show a single leaderboard or vendors' own claims, BenchSift keeps each source's methodology visible, groups the reasoning levels of one model on a single row and gives their own pages to benchmarks the usual tables leave out, such as {link("/benchmarks/deepswe", "DeepSWE")}, {link("/benchmarks/frontiercode", "FrontierCode")} or the {link("/benchmarks/cyber", "Cyber Index")}. The whole site is available in English and French; the {link("/about", "About")} page details the sources.</>,
+        ],
+      },
+      modelFacts: ({ name, category, creator, date, context }) => <>{name} is {/^[aeiou]/i.test(category) ? "an" : "a"} {category} from {creator}{date ? `, released on ${date}` : ""}{context ? `, with a context window of ${context} tokens` : ""}.</>,
+      modelOpenWeights: "Its weights are openly published.",
+      modelPair: (pair) => <>Every benchmark side by side: {pair}.</>,
+      modelTitle: (name) => `${name}: Benchmarks, Price and Speed - BenchSift`,
+      modelDescription: ({ name, creator, score, rank, price, speed }) =>
+        `${name} by ${creator} scores ${score} on the Artificial Analysis Intelligence Index${rank ? ` (${ordinal(rank.rank)} of ${rank.total})` : ""}${price ? `, costs ${price} per million tokens` : ""}${speed ? ` and outputs ${speed}` : ""}. Benchmarks, pricing, speed and capabilities.`,
+      compareIntro: {
+        title: "How the comparator works",
+        body: "Pick up to four models to compare their benchmarks, prices, speed, latency, context window and capabilities in one table. Only values a source publishes are compared, and the best value of a row is marked only when higher or lower is clearly better. The selection stays in the address, so you can share it as it is.",
+        popular: "Popular comparisons",
+      },
+      relatedPages: { models: "All models", compare: "Compare models" },
     },
     langSuggestion: {
       message: "This page is available in English.",

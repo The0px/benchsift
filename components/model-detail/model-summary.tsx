@@ -1,11 +1,15 @@
 import { Fragment, type ReactNode } from "react";
 import { Link } from "@/components/link";
-import { formatMoney, formatNumber, formatSpeed, localeFor } from "@/lib/format";
+import { comparePairPath } from "@/lib/compare-pairs";
+import { formatDate, formatMoney, formatNumber, formatSpeed, formatTokens, localeFor } from "@/lib/format";
 import { useI18n, type Lang } from "@/lib/i18n";
 import type { ModelInsights } from "@/lib/model-insights";
-import { textMetricValue } from "@/lib/model-metrics";
-import { modelSummary, type PeerComparison, type Relation } from "@/lib/model-summary";
+import { getPrimaryCategory, isOpenWeightsModel, textMetricValue } from "@/lib/model-metrics";
+import { closestPeer, modelSummary, type PeerComparison, type Relation } from "@/lib/model-summary";
 import type { LLMModel } from "@/lib/model-types";
+import { creatorProfileHref } from "@/lib/provider-map";
+
+const linkClass = "rounded-sm font-medium text-foreground underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
 function finite(value: number | null | undefined): number | null {
   return value != null && Number.isFinite(value) ? value : null;
@@ -20,9 +24,11 @@ function joinList(items: ReactNode[], lang: Lang): ReactNode {
 }
 
 /**
- * A paragraph that places the model among its closest peers on the
- * Intelligence Index: its score and rank, then its blended price and output
- * speed against theirs. Every value is a measurement shown elsewhere on the page.
+ * The model's opening paragraph: what it is from its sourced specifications,
+ * then where it stands among its closest peers on the Intelligence Index (its
+ * score and rank, its blended price and output speed against theirs) and a
+ * link to the comparison with the closest one. Every value is a measurement
+ * shown elsewhere on the page; an unpublished one leaves its clause out.
  */
 export function ModelSummary({ model, insights }: { model: LLMModel; insights: Pick<ModelInsights, "ranks" | "similar"> }) {
   const { t, lang } = useI18n();
@@ -36,7 +42,23 @@ export function ModelSummary({ model, insights }: { model: LLMModel; insights: P
     insights.ranks.artificial_analysis_intelligence_index,
     insights.similar,
   );
-  if (!summary) return null;
+  const release = model.release_date && Number.isFinite(Date.parse(model.release_date)) ? formatDate(model.release_date, lang) : null;
+  const context = finite(model.context_window_tokens);
+  const creatorHref = creatorProfileHref(model.model_creator.slug);
+  const facts = (
+    <>
+      {t.seoContent.modelFacts({
+        name: model.name,
+        category: t.seo.model.categories[getPrimaryCategory(model)],
+        creatorName: model.model_creator.name,
+        creator: creatorHref ? <Link href={creatorHref} className={linkClass}>{model.model_creator.name}</Link> : model.model_creator.name,
+        date: release,
+        context: context !== null && context > 0 ? formatTokens(context, lang) : null,
+      })}
+      {isOpenWeightsModel(model) && <>{" "}{t.seoContent.modelOpenWeights}</>}
+    </>
+  );
+  if (!summary) return <p className="max-w-4xl text-sm leading-6 text-muted-foreground text-pretty">{facts}</p>;
 
   const clauses = (
     key: "price" | "speed",
@@ -61,19 +83,26 @@ export function ModelSummary({ model, insights }: { model: LLMModel; insights: P
     : clauses("speed", ["higher", "similar", "lower"], copy.speedClause, (peer) => formatSpeed(peer.speed, lang));
   const peerLinks = summary.peers.map(({ peer }) => (
     <Fragment key={peer.slug}>
-      <Link href={`/models/${peer.slug}`} className="rounded-sm font-medium text-foreground underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+      <Link href={`/models/${peer.slug}`} className={linkClass}>
         {peer.name}
       </Link>
       {` (${formatNumber(peer.intelligence, lang)})`}
     </Fragment>
   ));
 
+  const nearest = closestPeer(summary);
+  const pair = nearest && (
+    <Link href={comparePairPath(model.slug, nearest.slug)} className={linkClass}>{t.comparePair.heading(model.name, nearest.name)}</Link>
+  );
+
   return (
     <p className="max-w-4xl text-sm leading-6 text-muted-foreground text-pretty">
+      {facts}{" "}
       {copy.score(model.name, formatNumber(summary.intelligence, lang), summary.rank)}{" "}
       {copy.peers(joinList(peerLinks, lang), summary.peers.length)}
       {price && <>{" "}{copy.price(formatMoney(summary.price, lang), price)}</>}
       {speed && <>{" "}{copy.speed(formatSpeed(summary.speed, lang), speed)}</>}
+      {pair && <>{" "}{t.seoContent.modelPair(pair)}</>}
     </p>
   );
 }

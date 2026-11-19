@@ -3,6 +3,7 @@ import { fetchCompareData } from "@/lib/server-fns";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { CompareWorkspace } from "@/components/compare/compare-workspace";
+import { ComparePairLinks } from "@/components/compare/compare-pair-links";
 import { ChevronLeft, GitCompareArrows } from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -114,7 +115,8 @@ function ComparePending() {
 }
 
 function ComparePage() {
-  const { allModels, selected, families } = Route.useLoaderData();
+  const { allModels, selected, families, popularPairs } = Route.useLoaderData();
+  const { t } = useI18n();
 
   return (
     <div className="flex flex-col flex-1">
@@ -125,6 +127,15 @@ function ComparePage() {
         className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 py-6 pb-20 sm:px-6 sm:py-8 lg:px-8"
       >
         <CompareWorkspace models={selected} allModels={allModels} families={families} />
+        {selected.length === 0 && (
+          <>
+            <section aria-labelledby="compare-intro" className="mt-10 border-t pt-6">
+              <h2 id="compare-intro" className="text-base font-semibold">{t.seoContent.compareIntro.title}</h2>
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-muted-foreground text-pretty">{t.seoContent.compareIntro.body}</p>
+            </section>
+            <ComparePairLinks id="popular-comparisons" title={t.seoContent.compareIntro.popular} pairs={popularPairs} className="mt-6 border-t-0 pt-0" />
+          </>
+        )}
       </main>
       <SiteFooter />
     </div>

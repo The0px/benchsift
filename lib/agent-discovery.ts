@@ -6,6 +6,26 @@ const AGENT_SKILLS_INDEX_PATH = "/.well-known/agent-skills/index.json";
 const MCP_SERVER_CARD_PATH = "/.well-known/mcp/server-card.json";
 const API_DOCS_PATH = "/docs/api";
 const AUTH_MD_PATH = "/auth.md";
+export const LLMS_TXT_PATH = "/llms.txt";
+export const LLMS_FULL_TXT_PATH = "/llms-full.txt";
+
+/** The site's main pages, as agents and language models are told about them. */
+export const SITE_PAGES: ReadonlyArray<{ path: string; title: string; description: string }> = [
+  { path: "/", title: "AI model ranking", description: "Every catalogue model ranked by the Artificial Analysis Intelligence Index, with price, output speed, latency and context window." },
+  { path: "/models", title: "All models", description: "Directory of the indexed model pages, grouped by creator." },
+  { path: "/compare", title: "Compare models", description: "Up to four models side by side: benchmarks, prices, speed, latency, context window and capabilities." },
+  { path: "/agents/coding", title: "Coding agents", description: "Artificial Analysis Coding Agent Index: agent and model configurations by score, cost and time per task." },
+  { path: "/benchmarks/deepswe", title: "DeepSWE", description: "Datacurve's long software engineering tasks with program-based verifiers: pass@1, cost and duration per task." },
+  { path: "/benchmarks/frontiercode", title: "FrontierCode", description: "Agentic coding in real open-source repositories, scored on whether a maintainer would accept the change." },
+  { path: "/benchmarks/frontiermath", title: "FrontierMath", description: "Epoch AI's unpublished, research-level mathematics problems: FrontierMath v2 scores for Tiers 1–3 and Tier 4, with standard errors." },
+  { path: "/benchmarks/cursorbench", title: "CursorBench", description: "Cursor's ambiguous, multi-file coding tasks from real Cursor sessions: score, cost, tokens and agent steps per task." },
+  { path: "/benchmarks/aa-3d", title: "AA-3D", description: "Interactive three.js scenes ranked by an Elo from blind human votes, with cost per scene." },
+  { path: "/benchmarks/decision-index", title: "Decision Index", description: "Decision models and language models on document reading, consistency, tool calling, knowledge and reasoning." },
+  { path: "/benchmarks/cyber", title: "Cyber Index", description: "Cybersecurity tasks: successes, safety blocks, failures and cost per task, with trusted-access models marked." },
+  { path: "/benchmarks/robotics", title: "AA-Robotics", description: "Language models driving a robot arm on tabletop tasks, compared with a human baseline." },
+  { path: "/benchmarks/personality", title: "AA-PersonalityBench", description: "30 personality traits rated with an Elo per model; an Elo measures how strongly a trait shows, not quality." },
+  { path: "/about", title: "About and data sources", description: "Where the data comes from and how BenchSift relates to Artificial Analysis." },
+];
 
 interface LinkHeaderItem {
   path: string;
@@ -15,6 +35,12 @@ interface LinkHeaderItem {
 }
 
 const discoveryLinks: LinkHeaderItem[] = [
+  {
+    path: LLMS_TXT_PATH,
+    rel: "describedby",
+    type: "text/markdown",
+    title: "BenchSift for language models",
+  },
   {
     path: API_CATALOG_PATH,
     rel: "api-catalog",
@@ -253,6 +279,7 @@ ${DEFAULT_DESCRIPTION}
 
 ## Discovery
 
+- For language models: ${absoluteUrl(LLMS_TXT_PATH)} and ${absoluteUrl(LLMS_FULL_TXT_PATH)}
 - API catalog: ${absoluteUrl(API_CATALOG_PATH)}
 - OpenAPI description: ${absoluteUrl(OPENAPI_PATH)}
 - Agent skills index: ${absoluteUrl(AGENT_SKILLS_INDEX_PATH)}
@@ -313,18 +340,7 @@ BenchSift helps compare AI models by intelligence, coding, math, speed, latency,
 
 ## Main pages
 
-- Homepage: ${absoluteUrl("/")}
-- Compare models: ${absoluteUrl("/compare")}
-- Coding agents leaderboard: ${absoluteUrl("/agents/coding")}
-- DeepSWE benchmark: ${absoluteUrl("/benchmarks/deepswe")}
-- FrontierCode benchmark: ${absoluteUrl("/benchmarks/frontiercode")}
-- FrontierMath benchmark (Epoch AI): ${absoluteUrl("/benchmarks/frontiermath")}
-- CursorBench benchmark (Cursor): ${absoluteUrl("/benchmarks/cursorbench")}
-- AA-3D benchmark: ${absoluteUrl("/benchmarks/aa-3d")}
-- Decision Index: ${absoluteUrl("/benchmarks/decision-index")}
-- Cyber Index: ${absoluteUrl("/benchmarks/cyber")}
-- AA-Robotics: ${absoluteUrl("/benchmarks/robotics")}
-- AA-PersonalityBench: ${absoluteUrl("/benchmarks/personality")}
+${SITE_PAGES.map((page) => `- ${page.title}: ${absoluteUrl(page.path)}`).join("\n")}
 - Creator profiles: ${absoluteUrl("/creators/{slug}")} (for example ${absoluteUrl("/creators/google")})
 
 ## Agent discovery
@@ -339,6 +355,45 @@ BenchSift helps compare AI models by intelligence, coding, math, speed, latency,
 ## Authentication
 
 Public model and benchmark pages do not require authentication. Private cron endpoints are reserved for the site operator and require \`CRON_SECRET\`.
+`;
+
+/**
+ * /llms.txt, following llmstxt.org: what the site is, how its data may be
+ * read, then its pages in both languages.
+ */
+export const llmsTxt = `# ${SITE_NAME}
+
+> Independent, evidence-first catalogue for finding and comparing AI models, in English and French. It combines Artificial Analysis benchmarks (intelligence, coding, math, speed, latency), OpenRouter prices, capabilities and usage rankings, Models.dev specifications and Hugging Face open-weights evidence.
+
+How to read the data:
+
+- Every value comes from a named source and links back to it. A metric no source publishes is left empty; it is never estimated, and zero is a real measurement.
+- Artificial Analysis owns model identity, benchmarks, speed, latency and its published prices; OpenRouter adds capabilities, pricing detail and models Artificial Analysis does not cover; Models.dev fills missing specifications; Hugging Face supplies open-weights evidence.
+- Prices are USD per million tokens, blended 3:1 input/output unless a page says otherwise. Benchmark pages state their own unit (pass@1, Elo, index score).
+- The catalogue is refreshed on a schedule and pages show the date of their data; benchmark pages keep an upstream snapshot for at most six hours.
+
+## Pages
+
+${SITE_PAGES.map((page) => `- [${page.title}](${absoluteUrl(page.path)}): ${page.description}`).join("\n")}
+- [Model pages](${absoluteUrl("/models/{slug}")}): one page per model with its Intelligence Index rank, closest peers, benchmarks, prices, speed and capabilities.
+- [Creator profiles](${absoluteUrl("/creators/{slug}")}): every model of a creator with its best scores and ranks.
+- [Comparison pages](${absoluteUrl("/compare/{a}-vs-{b}")}): two models side by side, for example the most used models of the week.
+
+## Français
+
+Every page has a French version under /fr, for example ${absoluteUrl("/fr")}, ${absoluteUrl("/fr/models")} and ${absoluteUrl("/fr/compare")}.
+
+## Data
+
+- [Model list](${absoluteUrl(LLMS_FULL_TXT_PATH)}): the indexed models with their sourced key figures, in plain text.
+- [Sitemap](${absoluteUrl("/sitemap.xml")}): every indexed page in both languages.
+- [OpenAPI description](${absoluteUrl(OPENAPI_PATH)}) and [API documentation](${absoluteUrl(API_DOCS_PATH)}).
+
+## Optional
+
+- [Agent skills](${absoluteUrl(AGENT_SKILLS_INDEX_PATH)}): navigation guides for agents.
+- [MCP server card](${absoluteUrl(MCP_SERVER_CARD_PATH)}).
+- [Source code](https://github.com/The0px/benchsift).
 `;
 
 export function markdownTokenEstimate(markdown: string): string {

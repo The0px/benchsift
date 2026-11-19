@@ -26,9 +26,11 @@ export function DetailCard({
   return (
     <Card className={className}>
       <CardHeader className="border-b border-border/70">
-        <CardTitle className="flex items-center gap-2 text-sm font-medium">
-          <Icon aria-hidden="true" className="size-4 text-muted-foreground" />
-          {title}
+        <CardTitle className="text-sm font-medium">
+          <h2 className="flex items-center gap-2">
+            <Icon aria-hidden="true" className="size-4 text-muted-foreground" />
+            {title}
+          </h2>
         </CardTitle>
         {description && <CardDescription>{description}</CardDescription>}
       </CardHeader>

@@ -16,6 +16,8 @@ import { Route as AuthDotmdRouteImport } from './routes/auth[.]md'
 import { Route as CompareRouteImport } from './routes/compare'
 import { Route as HealthRouteImport } from './routes/health'
 import { Route as LegalRouteImport } from './routes/legal'
+import { Route as LlmsFullDottxtRouteImport } from './routes/llms-full[.]txt'
+import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
@@ -79,6 +81,16 @@ const HealthRoute = HealthRouteImport.update({
 const LegalRoute = LegalRouteImport.update({
   id: '/legal',
   path: '/legal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LlmsFullDottxtRoute = LlmsFullDottxtRouteImport.update({
+  id: '/llms-full.txt',
+  path: '/llms-full.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LlmsDottxtRoute = LlmsDottxtRouteImport.update({
+  id: '/llms.txt',
+  path: '/llms.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -242,6 +254,8 @@ export interface FileRoutesByFullPath {
   '/compare': typeof CompareRoute
   '/health': typeof HealthRoute
   '/legal': typeof LegalRoute
+  '/llms-full.txt': typeof LlmsFullDottxtRoute
+  '/llms.txt': typeof LlmsDottxtRoute
   '/privacy': typeof PrivacyRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -280,6 +294,8 @@ export interface FileRoutesByTo {
   '/compare': typeof CompareRoute
   '/health': typeof HealthRoute
   '/legal': typeof LegalRoute
+  '/llms-full.txt': typeof LlmsFullDottxtRoute
+  '/llms.txt': typeof LlmsDottxtRoute
   '/privacy': typeof PrivacyRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -319,6 +335,8 @@ export interface FileRoutesById {
   '/compare': typeof CompareRoute
   '/health': typeof HealthRoute
   '/legal': typeof LegalRoute
+  '/llms-full.txt': typeof LlmsFullDottxtRoute
+  '/llms.txt': typeof LlmsDottxtRoute
   '/privacy': typeof PrivacyRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -359,6 +377,8 @@ export interface FileRouteTypes {
     | '/compare'
     | '/health'
     | '/legal'
+    | '/llms-full.txt'
+    | '/llms.txt'
     | '/privacy'
     | '/robots.txt'
     | '/sitemap.xml'
@@ -397,6 +417,8 @@ export interface FileRouteTypes {
     | '/compare'
     | '/health'
     | '/legal'
+    | '/llms-full.txt'
+    | '/llms.txt'
     | '/privacy'
     | '/robots.txt'
     | '/sitemap.xml'
@@ -435,6 +457,8 @@ export interface FileRouteTypes {
     | '/compare'
     | '/health'
     | '/legal'
+    | '/llms-full.txt'
+    | '/llms.txt'
     | '/privacy'
     | '/robots.txt'
     | '/sitemap.xml'
@@ -474,6 +498,8 @@ export interface RootRouteChildren {
   CompareRoute: typeof CompareRoute
   HealthRoute: typeof HealthRoute
   LegalRoute: typeof LegalRoute
+  LlmsFullDottxtRoute: typeof LlmsFullDottxtRoute
+  LlmsDottxtRoute: typeof LlmsDottxtRoute
   PrivacyRoute: typeof PrivacyRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -554,6 +580,20 @@ declare module '@tanstack/react-router' {
       path: '/legal'
       fullPath: '/legal'
       preLoaderRoute: typeof LegalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/llms-full.txt': {
+      id: '/llms-full.txt'
+      path: '/llms-full.txt'
+      fullPath: '/llms-full.txt'
+      preLoaderRoute: typeof LlmsFullDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/llms.txt': {
+      id: '/llms.txt'
+      path: '/llms.txt'
+      fullPath: '/llms.txt'
+      preLoaderRoute: typeof LlmsDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -770,6 +810,8 @@ const rootRouteChildren: RootRouteChildren = {
   CompareRoute: CompareRoute,
   HealthRoute: HealthRoute,
   LegalRoute: LegalRoute,
+  LlmsFullDottxtRoute: LlmsFullDottxtRoute,
+  LlmsDottxtRoute: LlmsDottxtRoute,
   PrivacyRoute: PrivacyRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,

@@ -6,6 +6,7 @@ import { PersonalityView } from "@/components/personality/personality-view";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { benchmarkHead, ARTIFICIAL_ANALYSIS } from "@/lib/route-seo";
+import { RelatedBenchmarks } from "@/components/benchmark-page";
 
 export const Route = createFileRoute("/benchmarks/personality")({
   validateSearch: parsePersonalitySearch,
@@ -40,6 +41,7 @@ function PersonalityPage() {
       <SiteHeader />
       <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         <PersonalityView data={data} search={search} onSearchChange={updateSearch} />
+        <RelatedBenchmarks current="/benchmarks/personality" />
       </main>
       <SiteFooter />
     </div>
