@@ -7,7 +7,6 @@ import {
 
 export const AA_LANGUAGE_MODELS_ENDPOINT = "/language/models/free";
 export const AA_LANGUAGE_MODELS_PRO_ENDPOINT = "/language/models";
-export const AA_LEGACY_LANGUAGE_MODELS_ENDPOINT = "/data/llms/models";
 
 export interface AAPagination {
   page: number;
@@ -298,61 +297,4 @@ export function normaliseAAV2LanguageModels(
   return rows
     .map(normaliseAAV2LanguageModel)
     .filter((model): model is LLMModel => model !== null);
-}
-
-function mergeDefined<T extends object>(fallback: T, current: T): T {
-  const merged = { ...fallback };
-  for (const [key, value] of Object.entries(current)) {
-    if (value !== undefined && value !== null) {
-      (merged as Record<string, unknown>)[key] = value;
-    }
-  }
-  return merged;
-}
-
-function mergeAAModel(current: LLMModel, legacy: LLMModel): LLMModel {
-  return {
-    ...mergeDefined(legacy, current),
-    // The legacy endpoint only has pre-v3 medians, which cannot fill a v3 gap.
-    ...(current.performance_version === 3
-      ? {
-          median_output_tokens_per_second: current.median_output_tokens_per_second,
-          median_time_to_first_token_seconds: current.median_time_to_first_token_seconds,
-          median_time_to_first_answer_token: current.median_time_to_first_answer_token,
-        }
-      : {}),
-    id: current.id,
-    name: current.name,
-    slug: current.slug,
-    model_creator: current.model_creator,
-    evaluations: mergeDefined(legacy.evaluations, current.evaluations),
-    pricing: mergeDefined(legacy.pricing, current.pricing),
-  };
-}
-
-/**
- * The current V2 Free response is the primary AA source. The documented legacy
- * endpoint still exposes a few headline fields (notably the Math index) that
- * can be absent from the V2 payload, so only missing V2 values are filled.
- */
-export function mergeAALanguageModelSources(
-  currentModels: LLMModel[],
-  legacyModels: LLMModel[],
-): LLMModel[] {
-  if (legacyModels.length === 0) return currentModels;
-
-  const legacyById = new Map(legacyModels.map((model) => [model.id, model]));
-  const legacyBySlug = new Map(legacyModels.map((model) => [model.slug, model]));
-  const matchedLegacy = new Set<LLMModel>();
-  const merged = currentModels.map((current) => {
-    const legacy = legacyById.get(current.id) ?? legacyBySlug.get(current.slug);
-    if (!legacy) return current;
-    matchedLegacy.add(legacy);
-    return mergeAAModel(current, legacy);
-  });
-
-  return [
-    ...merged,
-    ...legacyModels.filter((model) => !matchedLegacy.has(model)),
-  ];
 }

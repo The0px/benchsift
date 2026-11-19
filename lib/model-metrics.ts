@@ -44,14 +44,18 @@ export const AA_INDEX_V5_FRACTION_KEYS = [
 /** 0–1 benchmarks read from the AA Intelligence Index page outside the index itself. */
 export const AA_INDEX_PAGE_FRACTION_KEYS = [
   "critpt_v2", "vials_aa", "harvey_lab_aa", "mlcr_aa", "healthbench", "healthbench_professional", "analyst_agent_aa",
-  "enterprise_ops_gym_aa",
+  "enterprise_ops_gym_aa", "mka_aa",
 ] as const;
+
+/** Epoch AI FrontierMath v2 scores, 0–1 fractions written by the catalogue refresh. */
+export const EPOCH_FRACTION_KEYS = ["frontiermath_tiers_1_3", "frontiermath_tier_4"] as const;
 
 /** Elo-rated text benchmarks; every other text benchmark is a 0–1 fraction. */
 export const ELO_BENCHMARK_KEYS = ["gdpval", "aa_briefcase", "code2video_aa"] as const;
 
 export const TEXT_BENCHMARK_KEYS = new Set([
   ...AA_INDEX_V5_FRACTION_KEYS,
+  ...EPOCH_FRACTION_KEYS,
   ...AA_INDEX_PAGE_FRACTION_KEYS,
   "aa_briefcase",
   "code2video_aa",
@@ -122,9 +126,10 @@ export const AA_MEDIA_BENCHMARK_DEFS = [
   },
 ] as const;
 
-/** Benchmarks Artificial Analysis publishes as 0–1 fractions, in display order. */
+/** Benchmarks published as 0–1 fractions, in display order. */
 export const FRACTION_BENCHMARK_KEYS = [
   ...AA_INDEX_V5_FRACTION_KEYS,
+  ...EPOCH_FRACTION_KEYS,
   "mmlu_pro", "gpqa", "hle", "livecodebench", "scicode", "math_500", "aime", "aime_25",
   "ifbench", "lcr", "terminalbench_hard", "terminalbench_v2_1", "terminalbench_v4_0", "tau2", "tau_banking",
   "humaneval", "omniscience", "multilingual_aa", "mmmu_pro", "critpt", "gdpval_normalized",

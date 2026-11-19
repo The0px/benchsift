@@ -24,10 +24,12 @@ import { Route as DotwellKnownOpenapiDotjsonRouteImport } from './routes/[.]well
 import { Route as DotwellKnownSecurityDottxtRouteImport } from './routes/[.]well-known/security[.]txt'
 import { Route as AgentsCodingRouteImport } from './routes/agents/coding'
 import { Route as BenchmarksAa3dRouteImport } from './routes/benchmarks/aa-3d'
+import { Route as BenchmarksCursorbenchRouteImport } from './routes/benchmarks/cursorbench'
 import { Route as BenchmarksCyberRouteImport } from './routes/benchmarks/cyber'
 import { Route as BenchmarksDecisionIndexRouteImport } from './routes/benchmarks/decision-index'
 import { Route as BenchmarksDeepsweRouteImport } from './routes/benchmarks/deepswe'
 import { Route as BenchmarksFrontiercodeRouteImport } from './routes/benchmarks/frontiercode'
+import { Route as BenchmarksFrontiermathRouteImport } from './routes/benchmarks/frontiermath'
 import { Route as BenchmarksPersonalityRouteImport } from './routes/benchmarks/personality'
 import { Route as BenchmarksRoboticsRouteImport } from './routes/benchmarks/robotics'
 import { Route as ComparePairRouteImport } from './routes/compare_.$pair'
@@ -121,6 +123,11 @@ const BenchmarksAa3dRoute = BenchmarksAa3dRouteImport.update({
   path: '/benchmarks/aa-3d',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BenchmarksCursorbenchRoute = BenchmarksCursorbenchRouteImport.update({
+  id: '/benchmarks/cursorbench',
+  path: '/benchmarks/cursorbench',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BenchmarksCyberRoute = BenchmarksCyberRouteImport.update({
   id: '/benchmarks/cyber',
   path: '/benchmarks/cyber',
@@ -139,6 +146,11 @@ const BenchmarksDeepsweRoute = BenchmarksDeepsweRouteImport.update({
 const BenchmarksFrontiercodeRoute = BenchmarksFrontiercodeRouteImport.update({
   id: '/benchmarks/frontiercode',
   path: '/benchmarks/frontiercode',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BenchmarksFrontiermathRoute = BenchmarksFrontiermathRouteImport.update({
+  id: '/benchmarks/frontiermath',
+  path: '/benchmarks/frontiermath',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BenchmarksPersonalityRoute = BenchmarksPersonalityRouteImport.update({
@@ -238,10 +250,12 @@ export interface FileRoutesByFullPath {
   '/.well-known/security.txt': typeof DotwellKnownSecurityDottxtRoute
   '/agents/coding': typeof AgentsCodingRoute
   '/benchmarks/aa-3d': typeof BenchmarksAa3dRoute
+  '/benchmarks/cursorbench': typeof BenchmarksCursorbenchRoute
   '/benchmarks/cyber': typeof BenchmarksCyberRoute
   '/benchmarks/decision-index': typeof BenchmarksDecisionIndexRoute
   '/benchmarks/deepswe': typeof BenchmarksDeepsweRoute
   '/benchmarks/frontiercode': typeof BenchmarksFrontiercodeRoute
+  '/benchmarks/frontiermath': typeof BenchmarksFrontiermathRoute
   '/benchmarks/personality': typeof BenchmarksPersonalityRoute
   '/benchmarks/robotics': typeof BenchmarksRoboticsRoute
   '/compare/$pair': typeof ComparePairRoute
@@ -274,10 +288,12 @@ export interface FileRoutesByTo {
   '/.well-known/security.txt': typeof DotwellKnownSecurityDottxtRoute
   '/agents/coding': typeof AgentsCodingRoute
   '/benchmarks/aa-3d': typeof BenchmarksAa3dRoute
+  '/benchmarks/cursorbench': typeof BenchmarksCursorbenchRoute
   '/benchmarks/cyber': typeof BenchmarksCyberRoute
   '/benchmarks/decision-index': typeof BenchmarksDecisionIndexRoute
   '/benchmarks/deepswe': typeof BenchmarksDeepsweRoute
   '/benchmarks/frontiercode': typeof BenchmarksFrontiercodeRoute
+  '/benchmarks/frontiermath': typeof BenchmarksFrontiermathRoute
   '/benchmarks/personality': typeof BenchmarksPersonalityRoute
   '/benchmarks/robotics': typeof BenchmarksRoboticsRoute
   '/compare/$pair': typeof ComparePairRoute
@@ -311,10 +327,12 @@ export interface FileRoutesById {
   '/.well-known/security.txt': typeof DotwellKnownSecurityDottxtRoute
   '/agents/coding': typeof AgentsCodingRoute
   '/benchmarks/aa-3d': typeof BenchmarksAa3dRoute
+  '/benchmarks/cursorbench': typeof BenchmarksCursorbenchRoute
   '/benchmarks/cyber': typeof BenchmarksCyberRoute
   '/benchmarks/decision-index': typeof BenchmarksDecisionIndexRoute
   '/benchmarks/deepswe': typeof BenchmarksDeepsweRoute
   '/benchmarks/frontiercode': typeof BenchmarksFrontiercodeRoute
+  '/benchmarks/frontiermath': typeof BenchmarksFrontiermathRoute
   '/benchmarks/personality': typeof BenchmarksPersonalityRoute
   '/benchmarks/robotics': typeof BenchmarksRoboticsRoute
   '/compare_/$pair': typeof ComparePairRoute
@@ -349,10 +367,12 @@ export interface FileRouteTypes {
     | '/.well-known/security.txt'
     | '/agents/coding'
     | '/benchmarks/aa-3d'
+    | '/benchmarks/cursorbench'
     | '/benchmarks/cyber'
     | '/benchmarks/decision-index'
     | '/benchmarks/deepswe'
     | '/benchmarks/frontiercode'
+    | '/benchmarks/frontiermath'
     | '/benchmarks/personality'
     | '/benchmarks/robotics'
     | '/compare/$pair'
@@ -385,10 +405,12 @@ export interface FileRouteTypes {
     | '/.well-known/security.txt'
     | '/agents/coding'
     | '/benchmarks/aa-3d'
+    | '/benchmarks/cursorbench'
     | '/benchmarks/cyber'
     | '/benchmarks/decision-index'
     | '/benchmarks/deepswe'
     | '/benchmarks/frontiercode'
+    | '/benchmarks/frontiermath'
     | '/benchmarks/personality'
     | '/benchmarks/robotics'
     | '/compare/$pair'
@@ -421,10 +443,12 @@ export interface FileRouteTypes {
     | '/.well-known/security.txt'
     | '/agents/coding'
     | '/benchmarks/aa-3d'
+    | '/benchmarks/cursorbench'
     | '/benchmarks/cyber'
     | '/benchmarks/decision-index'
     | '/benchmarks/deepswe'
     | '/benchmarks/frontiercode'
+    | '/benchmarks/frontiermath'
     | '/benchmarks/personality'
     | '/benchmarks/robotics'
     | '/compare_/$pair'
@@ -458,10 +482,12 @@ export interface RootRouteChildren {
   DotwellKnownSecurityDottxtRoute: typeof DotwellKnownSecurityDottxtRoute
   AgentsCodingRoute: typeof AgentsCodingRoute
   BenchmarksAa3dRoute: typeof BenchmarksAa3dRoute
+  BenchmarksCursorbenchRoute: typeof BenchmarksCursorbenchRoute
   BenchmarksCyberRoute: typeof BenchmarksCyberRoute
   BenchmarksDecisionIndexRoute: typeof BenchmarksDecisionIndexRoute
   BenchmarksDeepsweRoute: typeof BenchmarksDeepsweRoute
   BenchmarksFrontiercodeRoute: typeof BenchmarksFrontiercodeRoute
+  BenchmarksFrontiermathRoute: typeof BenchmarksFrontiermathRoute
   BenchmarksPersonalityRoute: typeof BenchmarksPersonalityRoute
   BenchmarksRoboticsRoute: typeof BenchmarksRoboticsRoute
   ComparePairRoute: typeof ComparePairRoute
@@ -586,6 +612,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BenchmarksAa3dRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/benchmarks/cursorbench': {
+      id: '/benchmarks/cursorbench'
+      path: '/benchmarks/cursorbench'
+      fullPath: '/benchmarks/cursorbench'
+      preLoaderRoute: typeof BenchmarksCursorbenchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/benchmarks/cyber': {
       id: '/benchmarks/cyber'
       path: '/benchmarks/cyber'
@@ -612,6 +645,13 @@ declare module '@tanstack/react-router' {
       path: '/benchmarks/frontiercode'
       fullPath: '/benchmarks/frontiercode'
       preLoaderRoute: typeof BenchmarksFrontiercodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/benchmarks/frontiermath': {
+      id: '/benchmarks/frontiermath'
+      path: '/benchmarks/frontiermath'
+      fullPath: '/benchmarks/frontiermath'
+      preLoaderRoute: typeof BenchmarksFrontiermathRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/benchmarks/personality': {
@@ -738,10 +778,12 @@ const rootRouteChildren: RootRouteChildren = {
   DotwellKnownSecurityDottxtRoute: DotwellKnownSecurityDottxtRoute,
   AgentsCodingRoute: AgentsCodingRoute,
   BenchmarksAa3dRoute: BenchmarksAa3dRoute,
+  BenchmarksCursorbenchRoute: BenchmarksCursorbenchRoute,
   BenchmarksCyberRoute: BenchmarksCyberRoute,
   BenchmarksDecisionIndexRoute: BenchmarksDecisionIndexRoute,
   BenchmarksDeepsweRoute: BenchmarksDeepsweRoute,
   BenchmarksFrontiercodeRoute: BenchmarksFrontiercodeRoute,
+  BenchmarksFrontiermathRoute: BenchmarksFrontiermathRoute,
   BenchmarksPersonalityRoute: BenchmarksPersonalityRoute,
   BenchmarksRoboticsRoute: BenchmarksRoboticsRoute,
   ComparePairRoute: ComparePairRoute,

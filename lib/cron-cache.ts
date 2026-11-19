@@ -143,6 +143,12 @@ export async function readModelsCache(
 }
 
 /** When the catalogue in use was last refreshed, ISO 8601; null without a cache. */
+/** Refresh stats of the persisted catalogue (counts, source dates). */
+export async function catalogueStats(): Promise<Record<string, number> | undefined> {
+  const entry = await readModelsCache({ allowStale: true }).catch(() => null);
+  return entry?.stats;
+}
+
 export async function catalogueRefreshedAt(): Promise<string | null> {
   const entry = await readModelsCache({ allowStale: true }).catch(() => null);
   return entry ? new Date(entry.refreshedAt).toISOString() : null;

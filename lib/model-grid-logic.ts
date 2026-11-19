@@ -6,6 +6,9 @@ export type SortKey =
   | "intelligence"
   | "coding"
   | "math"
+  | "frontiercode"
+  | "frontiermath"
+  | "frontiermath_t4"
   | "agentic"
   | "cyber"
   | "gpqa"
@@ -87,6 +90,9 @@ const ADVANCED_EVALUATION_SORT_KEYS = {
   intelligence: "artificial_analysis_intelligence_index",
   coding: "artificial_analysis_coding_index",
   math: "artificial_analysis_math_index",
+  frontiercode: "frontiercode_2_0",
+  frontiermath: "frontiermath_tiers_1_3",
+  frontiermath_t4: "frontiermath_tier_4",
   agentic: "agentic_index",
   cyber: "cyber_index",
   gpqa: "gpqa",
@@ -126,6 +132,9 @@ export const DEFAULT_SORT_DIRECTION: Record<SortKey, SortDirection> = {
   intelligence: "desc",
   coding: "desc",
   math: "desc",
+  frontiercode: "desc",
+  frontiermath: "desc",
+  frontiermath_t4: "desc",
   agentic: "desc",
   cyber: "desc",
   gpqa: "desc",
@@ -189,7 +198,8 @@ function homeMetric(
   key:
     | "artificial_analysis_intelligence_index"
     | "artificial_analysis_coding_index"
-    | "artificial_analysis_math_index"
+    | "frontiercode_2_0"
+    | "frontiermath_tiers_1_3"
     | "cyber_index",
 ): number | null {
   return model.evaluations[key] ?? null;
@@ -201,8 +211,10 @@ const NORMAL_RANKING_VALUES: Record<
 > = {
   intelligence: (model) =>
     homeMetric(model, "artificial_analysis_intelligence_index"),
-  coding: (model) => homeMetric(model, "artificial_analysis_coding_index"),
-  math: (model) => homeMetric(model, "artificial_analysis_math_index"),
+  // AA no longer publishes its Coding and Math indices for new models, so
+  // these rankings follow benchmarks that are still run on current releases.
+  coding: (model) => homeMetric(model, "frontiercode_2_0"),
+  math: (model) => homeMetric(model, "frontiermath_tiers_1_3"),
   speed: (model) => model.median_output_tokens_per_second ?? null,
   price_asc: (model) => model.pricing.price_1m_blended_3_to_1 ?? null,
   cyber: (model) => homeMetric(model, "cyber_index"),

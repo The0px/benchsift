@@ -318,6 +318,8 @@ BenchSift helps compare AI models by intelligence, coding, math, speed, latency,
 - Coding agents leaderboard: ${absoluteUrl("/agents/coding")}
 - DeepSWE benchmark: ${absoluteUrl("/benchmarks/deepswe")}
 - FrontierCode benchmark: ${absoluteUrl("/benchmarks/frontiercode")}
+- FrontierMath benchmark (Epoch AI): ${absoluteUrl("/benchmarks/frontiermath")}
+- CursorBench benchmark (Cursor): ${absoluteUrl("/benchmarks/cursorbench")}
 - AA-3D benchmark: ${absoluteUrl("/benchmarks/aa-3d")}
 - Decision Index: ${absoluteUrl("/benchmarks/decision-index")}
 - Cyber Index: ${absoluteUrl("/benchmarks/cyber")}
@@ -405,6 +407,8 @@ Entrypoints:
 - Coding agents: ${absoluteUrl("/agents/coding")}
 - DeepSWE: ${absoluteUrl("/benchmarks/deepswe")}
 - FrontierCode: ${absoluteUrl("/benchmarks/frontiercode")}
+- FrontierMath: ${absoluteUrl("/benchmarks/frontiermath")}
+- CursorBench: ${absoluteUrl("/benchmarks/cursorbench")}
 
 Use these pages when an agent needs coding-specific rankings rather than general model rankings.
 `,

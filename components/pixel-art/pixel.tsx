@@ -37,7 +37,6 @@ const DIGITS: Record<string, readonly string[]> = {
 
 /** Digit cells are 3 units, so one digit is 15 × 21 units. */
 export const DIGIT_SCALE = 3;
-export const DIGIT_WIDTH = 5 * DIGIT_SCALE;
 export const DIGIT_HEIGHT = 7 * DIGIT_SCALE;
 
 export function Digit({ value, x, y, className = "" }: { value: string; x: number; y: number; className?: string }) {

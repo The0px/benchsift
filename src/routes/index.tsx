@@ -121,7 +121,7 @@ function useCompleteHomeCatalog(loaded: HomeCatalogData) {
 
 function HomePage() {
   const { data, preview } = useCompleteHomeCatalog(Route.useLoaderData());
-  const { count, latestModels, models, cyberModels } = data;
+  const { count, latestModels, models, cyberModels, carriedScores } = data;
   const loaded = Route.useLoaderData();
   const summary = useMemo(
     () => (loaded.summary ? homeSummary(loaded.summary, loaded.updatedAt ?? null) : null),
@@ -144,7 +144,7 @@ function HomePage() {
           latestModels={latestModels}
         />
         {summary && <DataSummary data={summary} className="mb-6 sm:mb-8" />}
-        <ModelGrid models={models} cyberModels={cyberModels} preview={preview} search={search} onSearchChange={updateSearch} />
+        <ModelGrid models={models} cyberModels={cyberModels} carriedScores={carriedScores} preview={preview} search={search} onSearchChange={updateSearch} />
       </main>
 
       <SiteFooter />

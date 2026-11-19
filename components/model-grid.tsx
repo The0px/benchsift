@@ -1,4 +1,5 @@
 import { lazy, Suspense, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "@/components/link";
 import { Combobox, type ComboboxItem } from "@/components/catalog-combobox";
 import { CatalogSelect } from "@/components/catalog-select";
 import { Blocks, Loader2, SlidersHorizontal } from "@/components/icons";
@@ -12,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import type { CatalogSearch } from "@/lib/catalog-search";
 import { animateContent } from "@/lib/content-motion";
 import { HOME_PREVIEW_SIZE, type HomeCatalogModel } from "@/lib/home-catalog";
+import { isSourcedRanking, type SourcedRanking } from "@/lib/catalogue-sources";
+import { formatDate } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
 import {
   advancedSortValue,
@@ -86,18 +89,21 @@ function CatalogStatus({ failed, onRetry }: { failed: boolean; onRetry?: () => v
 export function ModelGrid({
   models,
   cyberModels,
+  carriedScores,
   preview,
   search,
   onSearchChange,
 }: {
   models: HomeCatalogModel[];
   cyberModels: HomeCatalogModel[];
+  /** Rankings whose scores were kept from an earlier refresh, with their date. */
+  carriedScores?: Partial<Record<SourcedRanking, string>>;
   /** Set while `models` is only the top of the default ranking; `total` is the full ranking's length. */
   preview?: { total: number; failed: boolean; retry: () => void };
   search: CatalogSearch;
   onSearchChange: (search: CatalogSearch) => void;
 }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const { state, update, sortBy, reverseSort, setViewMode, resetFilters, activeFilterCount } = useCatalogState(search, onSearchChange);
   const appliedQuery = useDeferredValue(state.query).toLowerCase().trim();
   const { minScore, maxPrice, minContext, minSpeed, reasoning } = state;
@@ -352,6 +358,20 @@ export function ModelGrid({
             </p>
           )}
           {!advanced && <p className="hidden text-xs text-muted-foreground sm:block">{t.trust.catalogNote}</p>}
+          {!advanced && (state.ranking === "coding" || state.ranking === "math") && (
+            <p className="text-xs text-muted-foreground">
+              {t.grid.ranking.sources[state.ranking]}{" "}
+              <Link
+                href={state.ranking === "coding" ? "/benchmarks/frontiercode" : "/benchmarks/frontiermath"}
+                className="font-medium text-foreground underline underline-offset-4"
+              >
+                {t.grid.ranking.sourceLink}
+              </Link>
+            </p>
+          )}
+          {!advanced && isSourcedRanking(state.ranking) && carriedScores?.[state.ranking] && (
+            <p className="text-xs text-muted-foreground">{t.grid.ranking.scoresAsOf(formatDate(carriedScores[state.ranking], lang))}</p>
+          )}
 
           {/* Stable keys keep focus and mounted rows while the filters change. */}
           <div ref={resultsRef} aria-busy={state.query.toLowerCase().trim() !== appliedQuery}>

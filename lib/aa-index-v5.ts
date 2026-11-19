@@ -38,6 +38,10 @@ export const AA_INDEX_V5_FIELDS = {
   analyst_agent_aa: "analystAgent",
   enterprise_ops_gym_aa: "enterpriseOpsGym",
   code2video_aa: "code2videoElo",
+  mka_aa: "mkaClimbWsr",
+  // The API publishes these two for more models; the page fills its gaps.
+  tau_banking: "tauBanking",
+  terminalbench_v2_1: "terminalBench21",
 } as const satisfies Record<string, string | readonly string[]>;
 
 export type AAIndexV5Key = keyof typeof AA_INDEX_V5_FIELDS;

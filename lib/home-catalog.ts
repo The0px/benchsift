@@ -5,6 +5,7 @@ import { isOpenWeightsModel, textMetricValue } from "@/lib/model-metrics";
 import { modelReleaseTime } from "@/lib/model-release";
 import { collapseReasoningVariants } from "@/lib/model-reasoning";
 import { hasNormalRankingValue, sortHomeModels } from "@/lib/model-grid-logic";
+import type { SourcedRanking } from "@/lib/catalogue-sources";
 
 /** Rows of the default ranking sent with the first render; the rest loads after hydration. */
 export const HOME_PREVIEW_SIZE = 20;
@@ -23,6 +24,8 @@ export interface HomeCatalogModel {
     | "artificial_analysis_intelligence_index"
     | "artificial_analysis_coding_index"
     | "artificial_analysis_math_index"
+    | "frontiercode_2_0"
+    | "frontiermath_tiers_1_3"
     | "agentic_index"
     | "cyber_index"
   >>;
@@ -68,6 +71,8 @@ export interface HomeCatalogData {
   summary?: RankingSummary;
   /** When the catalogue was last refreshed, ISO 8601. */
   updatedAt?: string | null;
+  /** Rankings whose source did not answer the latest refresh, with the date of the scores kept (ISO 8601). */
+  carriedScores?: Partial<Record<SourcedRanking, string>>;
 }
 
 function latestModelSummaries(models: LLMModel[], limit = 3): LatestModelSummary[] {
@@ -129,6 +134,8 @@ function compactModel(model: LLMModel, creator: Pick<ModelCreator, "name" | "slu
     "artificial_analysis_intelligence_index",
     "artificial_analysis_coding_index",
     "artificial_analysis_math_index",
+    "frontiercode_2_0",
+    "frontiermath_tiers_1_3",
     "agentic_index",
     "cyber_index",
   ] as const) {
