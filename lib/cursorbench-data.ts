@@ -58,19 +58,24 @@ function codePoint(value: number, entity: string): string {
   return Number.isInteger(value) && value > 0 && value <= 0x10ffff ? String.fromCodePoint(value) : entity;
 }
 
+/** Text outside angle brackets; the brackets themselves never reach the result. */
+function textOutsideTags(html: string): string {
+  let text = "";
+  let inTag = false;
+  for (const char of html) {
+    if (char === "<") inTag = true;
+    else if (char === ">") inTag = false;
+    else if (!inTag) text += char;
+  }
+  return text;
+}
+
 /**
- * Plain text of a table cell. Markup is stripped until none is left, and any
- * angle bracket that remains or that an entity decodes to is dropped: a cell
- * holds a model name or a figure, never markup.
+ * Plain text of a table cell. Markup is dropped, and so is any angle bracket
+ * an entity decodes to: a cell holds a model name or a figure, never markup.
  */
 function cellText(html: string): string {
-  let text = html;
-  for (let previous = ""; previous !== text;) {
-    previous = text;
-    text = text.replace(/<!--[\s\S]*?-->/g, "").replace(/<[^<>]*>/g, "");
-  }
-  return text
-    .replace(/[<>]/g, "")
+  return textOutsideTags(html)
     .replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (entity, code: string) => {
       if (code.startsWith("#x") || code.startsWith("#X")) return codePoint(Number.parseInt(code.slice(2), 16), entity);
       if (code.startsWith("#")) return codePoint(Number(code.slice(1)), entity);
