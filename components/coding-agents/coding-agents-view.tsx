@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { Terminal, Trophy } from "@/components/icons";
 import { SearchField } from "@/components/search-field";
 import { BenchmarkHeader, ScoreBar, StatTiles } from "@/components/benchmark-page";
@@ -40,7 +40,7 @@ function configurationKey(agent: CodingAgent): string {
  * cost chart (one line per harness and model across effort levels) and the
  * sortable table. Ranks always follow the index, whatever the order shown.
  */
-export function CodingAgentsView({ agents }: { agents: CodingAgent[] }) {
+export function CodingAgentsView({ agents, summary }: { agents: CodingAgent[]; summary?: ReactNode }) {
   const { t, lang } = useI18n();
   const copy = t.agents;
   const ui = t.benchmarkUi;
@@ -139,7 +139,7 @@ export function CodingAgentsView({ agents }: { agents: CodingAgent[] }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <BenchmarkHeader icon={Terminal} title={copy.title} description={copy.description} source={source}>
+      <BenchmarkHeader icon={Terminal} title={copy.title} description={copy.description} source={source} summary={summary}>
         <div className="mt-3 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
           <span className="flex items-center gap-1 font-medium text-foreground">
             {copy.indexLabel}

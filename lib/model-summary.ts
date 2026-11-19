@@ -58,3 +58,12 @@ export function modelSummary(
   if (peers.length === 0) return null;
   return { intelligence, rank: rank ?? null, price: model.price, speed: model.speed, peers };
 }
+
+/** The peer nearest the model's score; the better-scored one on a tie. */
+export function closestPeer(summary: ModelSummary): SimilarModel | null {
+  let best: SimilarModel | null = null;
+  for (const { peer } of summary.peers) {
+    if (!best || Math.abs(peer.intelligence - summary.intelligence) < Math.abs(best.intelligence - summary.intelligence)) best = peer;
+  }
+  return best;
+}

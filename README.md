@@ -65,6 +65,8 @@ src/
     api/cron/status.ts    # Authenticated cache summary
     health.ts            # Public liveness and catalogue state
     robots[.]txt.ts       # robots.txt
+    llms[.]txt.ts         # llms.txt, the site summary for language models
+    llms-full[.]txt.ts    # llms-full.txt, indexed models with their key figures
     sitemap[.]xml.ts      # sitemap.xml
   styles/globals.css      # Tailwind v4 entry
 components/               # UI components (shadcn/ui based)

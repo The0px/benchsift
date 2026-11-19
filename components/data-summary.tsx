@@ -3,13 +3,13 @@ import { Link } from "@/components/link";
 import type { BenchmarkSummary } from "@/lib/benchmark-summaries";
 import type { SummaryPick } from "@/lib/data-summary";
 import { formatDate, formatMoney, formatNumber } from "@/lib/format";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, type TakeawayKey } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 /**
  * A short paragraph written from the data on the page: the leader, the best
- * score for the money, the fastest and the date of the data. Sentences whose
- * value is unpublished are left out.
+ * score for the money, the fastest and the date of the data, then what to take
+ * away from the benchmark. Sentences whose value is unpublished are left out.
  */
 export function DataSummary({ data, className }: { data: BenchmarkSummary; className?: string }) {
   const { t, lang } = useI18n();
@@ -35,6 +35,7 @@ export function DataSummary({ data, className }: { data: BenchmarkSummary; class
       : copy.value(name(summary.value), data.formatScore(summary.value.score, lang), cost(summary.value)));
   }
   if (summary.fastest && speed) sentences.push(copy.fastest(name(summary.fastest), timed ? `${speed} ${copy.perTaskTime}` : speed));
+  if (data.page) sentences.push(t.seoContent.takeaways[data.page]);
 
   return (
     <section aria-label={copy.title} className={cn("max-w-3xl text-sm leading-6 text-muted-foreground", className)}>
@@ -56,4 +57,10 @@ export function DataSummary({ data, className }: { data: BenchmarkSummary; class
       </p>
     </section>
   );
+}
+
+/** What to take away from a benchmark page that has no leader to summarise. */
+export function BenchmarkTakeaway({ page }: { page: TakeawayKey }) {
+  const { t } = useI18n();
+  return <p className="max-w-3xl text-sm leading-6 text-muted-foreground text-pretty">{t.seoContent.takeaways[page]}</p>;
 }

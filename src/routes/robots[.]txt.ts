@@ -38,10 +38,13 @@ Allow: /
 Disallow: /api/
 
 User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
 Allow: /
 Disallow: /api/
 
 Sitemap: ${SITE_URL}/sitemap.xml
+
+# A summary for language models: ${SITE_URL}/llms.txt
 `;
 
 export const Route = createFileRoute("/robots.txt")({

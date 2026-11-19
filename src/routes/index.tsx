@@ -6,6 +6,7 @@ import type { HomeCatalogData } from "@/lib/home-catalog";
 import { ModelGrid } from "@/components/model-grid";
 import { SiteHeader } from "@/components/site-header";
 import { HomeHero } from "@/components/home-hero";
+import { HomeAbout } from "@/components/home-about";
 import { SiteFooter } from "@/components/site-footer";
 import { ScrollToTop } from "@/components/scroll-to-top";
 import { SITE_NAME, localizedUrl, seo, websiteJsonLd } from "@/lib/seo";
@@ -145,6 +146,7 @@ function HomePage() {
         />
         {summary && <DataSummary data={summary} className="mb-6 sm:mb-8" />}
         <ModelGrid models={models} cyberModels={cyberModels} carriedScores={carriedScores} preview={preview} search={search} onSearchChange={updateSearch} />
+        <HomeAbout />
       </main>
 
       <SiteFooter />

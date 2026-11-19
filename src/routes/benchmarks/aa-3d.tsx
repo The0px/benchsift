@@ -7,6 +7,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { benchmarkHead, ARTIFICIAL_ANALYSIS } from "@/lib/route-seo";
 import { aa3dSummary } from "@/lib/benchmark-summaries";
 import { DataSummary } from "@/components/data-summary";
+import { RelatedBenchmarks } from "@/components/benchmark-page";
 
 export const Route = createFileRoute("/benchmarks/aa-3d")({
   head: ({ match, loaderData }) =>
@@ -32,6 +33,7 @@ function Aa3dPage() {
       <SiteHeader />
       <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         <Aa3dView data={data} summary={<DataSummary data={summary} />} />
+        <RelatedBenchmarks current="/benchmarks/aa-3d" />
       </main>
       <SiteFooter />
     </div>

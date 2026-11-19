@@ -8,6 +8,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { benchmarkHead } from "@/lib/route-seo";
 import { cursorBenchSummary } from "@/lib/benchmark-summaries";
 import { DataSummary } from "@/components/data-summary";
+import { RelatedBenchmarks } from "@/components/benchmark-page";
 
 export const Route = createFileRoute("/benchmarks/cursorbench")({
   validateSearch: parseCursorBenchSearch,
@@ -42,6 +43,7 @@ function CursorBenchPage() {
       <SiteHeader />
       <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         <CursorBenchView data={data} summary={<DataSummary data={summary} />} search={search} onSearchChange={updateSearch} />
+        <RelatedBenchmarks current="/benchmarks/cursorbench" />
       </main>
       <SiteFooter />
     </div>

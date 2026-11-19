@@ -55,6 +55,7 @@ import { carriedRankingDates } from "@/lib/catalogue-sources";
 import { summarizeRanking } from "@/lib/data-summary";
 import {
   parseComparePair,
+  featuredComparePairs,
   popularComparePairs,
   popularPairOrder,
   relatedComparePairs,
@@ -169,6 +170,8 @@ export const fetchCompareData = createServerFn({ method: "GET" })
       allModels: CompareModelOption[];
       selected: LLMModel[];
       families: Record<string, ComparisonFamily>;
+      /** Popular pairs linked from the empty comparator; empty once models are chosen. */
+      popularPairs: ComparePair[];
     }> => {
       setResponseCache();
       const slugs = [...new Set(data.filter(isSafeSlug))].slice(0, 4);
@@ -201,7 +204,7 @@ export const fetchCompareData = createServerFn({ method: "GET" })
           families[model.slug] = { familyKey: family.familyKey, familyName: family.familyName, points: familyPoints(family) };
         }
       }
-      return { allModels, selected, families };
+      return { allModels, selected, families, popularPairs: slugs.length === 0 ? featuredComparePairs(models) : [] };
     },
   );
 
