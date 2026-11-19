@@ -153,7 +153,7 @@ export function ModelHero({
           title={!inComparison && isFull ? t.compare.maxReached : undefined}
           onClick={openComparison}
           // The floating mobile button stays opaque when disabled so content never shows through it.
-          className="touch-target fixed inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-30 h-12 shadow-lg max-sm:bg-primary! max-sm:text-primary-foreground! max-sm:hover:bg-primary/90! disabled:opacity-100 disabled:text-muted-foreground max-sm:disabled:bg-muted! max-sm:disabled:text-muted-foreground! sm:static sm:h-9 sm:w-auto sm:shadow-none"
+          className="touch-target fixed inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-30 h-12 shadow-lg max-sm:bg-primary! max-sm:text-primary-foreground! max-sm:hover:bg-primary/90! disabled:opacity-100 disabled:text-muted-foreground max-sm:disabled:bg-muted! max-sm:disabled:text-muted-foreground! sm:static sm:z-auto sm:h-9 sm:w-auto sm:shadow-none"
         >
           {inComparison ? <Check data-icon="inline-start" /> : <GitCompareArrows data-icon="inline-start" />}
           {!inComparison && isFull ? t.compare.maxReached : t.compare.compare}
