@@ -6,6 +6,7 @@ import {
   AA_CAPABILITY_INDEX_KEYS,
   AA_INDEX_PAGE_FRACTION_KEYS,
   AA_INDEX_V5_FRACTION_KEYS,
+  EPOCH_FRACTION_KEYS,
   ELO_BENCHMARK_KEYS,
   AA_MEDIA_BENCHMARK_DEFS,
   TEXT_BENCHMARK_KEYS,
@@ -179,6 +180,7 @@ export function buildComparisonRows(
   ];
   const percentages = [
     ...AA_INDEX_V5_FRACTION_KEYS,
+    ...EPOCH_FRACTION_KEYS,
     "mmlu_pro",
     "gpqa",
     "hle",

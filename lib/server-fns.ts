@@ -24,6 +24,11 @@ import { cyberLeaderboard, type CyberLeaderboard } from "@/lib/cyber-index";
 import { getDeepSweData, type DeepSweData } from "@/lib/deepswe";
 import { matchDeepSweModels, type DeepSweModelInfo } from "@/lib/deepswe-catalog";
 import { getFrontierCodeData, type FrontierCodeData } from "@/lib/frontiercode";
+import { getFrontierMathData, type FrontierMathData } from "@/lib/frontiermath";
+import { matchFrontierMathModels, type FrontierMathModelInfo } from "@/lib/frontiermath-catalog";
+import { getCursorBenchData, type CursorBenchData } from "@/lib/cursorbench";
+import { matchCursorBenchModels } from "@/lib/cursorbench-catalog";
+import type { CatalogRunInfo } from "@/lib/benchmark-run-catalog";
 import { getPersonalityData, type PersonalityData } from "@/lib/aa-personality";
 import { matchFrontierCodeModels, type FrontierCodeModelInfo } from "@/lib/frontiercode-catalog";
 import { getAa3dData, type Aa3dData } from "@/lib/aa3d";
@@ -45,7 +50,8 @@ import {
 import { readCookieValue } from "@/lib/http-cookie";
 import { readAnalyticsConsent, type AnalyticsConsent } from "@/lib/analytics-consent";
 import { getModelCatalogPage } from "@/lib/model-catalog";
-import { catalogueRefreshedAt } from "@/lib/cron-cache";
+import { catalogueRefreshedAt, catalogueStats } from "@/lib/cron-cache";
+import { carriedRankingDates } from "@/lib/catalogue-sources";
 import { summarizeRanking } from "@/lib/data-summary";
 import {
   parseComparePair,
@@ -115,8 +121,9 @@ export const fetchHomeCatalog = createServerFn({ method: "GET" })
         cost: model.pricing.price_1m_blended_3_to_1 ?? null,
         speed: model.median_output_tokens_per_second ?? null,
       })));
-      const full = { ...built, summary, updatedAt };
-      data = { full, preview: { ...homeCatalogPreview(full), summary, updatedAt } };
+      const carriedScores = carriedRankingDates(await catalogueStats());
+      const full = { ...built, summary, updatedAt, carriedScores };
+      data = { full, preview: { ...homeCatalogPreview(full), summary, updatedAt, carriedScores } };
       homeSnapshots.set(models, data);
     }
     return preview ? data.preview : data.full;
@@ -268,6 +275,24 @@ export const fetchFrontierCodeData = createServerFn({ method: "GET" }).handler(
     setResponseCache();
     const [data, models] = await Promise.all([getFrontierCodeData(), getLLMModels()]);
     return { ...data, catalog: matchFrontierCodeModels(models, data.rows) };
+  },
+);
+
+/** Epoch AI FrontierMath v2 results for both tiers, matched to the catalogue. */
+export const fetchFrontierMathData = createServerFn({ method: "GET" }).handler(
+  async (): Promise<FrontierMathData & { catalog: Record<string, FrontierMathModelInfo> }> => {
+    setResponseCache();
+    const [data, models] = await Promise.all([getFrontierMathData(), getLLMModels()]);
+    return { ...data, catalog: matchFrontierMathModels(models, [...data.tiers.tiers_1_3, ...data.tiers.tier_4]) };
+  },
+);
+
+/** Cursor's CursorBench leaderboard, matched to the catalogue by model and reasoning level. */
+export const fetchCursorBenchData = createServerFn({ method: "GET" }).handler(
+  async (): Promise<CursorBenchData & { catalog: Record<string, CatalogRunInfo> }> => {
+    setResponseCache();
+    const [data, models] = await Promise.all([getCursorBenchData(), getLLMModels()]);
+    return { ...data, catalog: matchCursorBenchModels(models, data.rows) };
   },
 );
 

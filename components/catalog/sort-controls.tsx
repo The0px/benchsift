@@ -15,7 +15,7 @@ export function directionLabel(sort: SortKey, direction: SortDirection, t: Trans
   return direction === "asc" ? labels.asc : labels.desc;
 }
 
-const PERCENT_SORTS = new Set<SortKey>(["gpqa", "mmlu_pro", "hle", "livecodebench", "math_500", "aime_25"]);
+const PERCENT_SORTS = new Set<SortKey>(["frontiercode", "frontiermath", "frontiermath_t4", "gpqa", "mmlu_pro", "hle", "livecodebench", "math_500", "aime_25"]);
 
 /** The value a model is sorted by, formatted for display; null for names. */
 export function formatSortValue(model: LLMModel, sort: SortKey, lang: DisplayLang): string | null {

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { Shield, Trophy } from "@/components/icons";
 import { BenchmarkDisclosure, BenchmarkHeader, ScoreBar, StatTiles } from "@/components/benchmark-page";
 import { CatalogSelect } from "@/components/catalog-select";
@@ -6,6 +6,7 @@ import { Link } from "@/components/link";
 import { ModelProviderIcon } from "@/components/model-provider-icon";
 import { CreatorMark } from "@/components/creator-mark";
 import { SearchField } from "@/components/search-field";
+import { useUrlQuery } from "@/components/use-url-query";
 import { SegmentedControl } from "@/components/segmented-control";
 import { SortButton } from "@/components/sort-button";
 import { TradeoffChart, type ChartScale, type ChartSeries } from "@/components/tradeoff-chart";
@@ -29,7 +30,6 @@ import { AccessRestrictionBadge } from "@/components/model-availability";
 import { PageCat } from "@/components/pixel-art/page-cats";
 import { CyberBenchmarkScore, CyberLegend, CyberOutcomeBar, formatCyberScore } from "./cyber-outcome";
 
-const URL_QUERY_DELAY_MS = 300;
 const AA_CYBER_URL = "https://artificialanalysis.ai/evaluations/artificial-analysis-cyber-index";
 
 /**
@@ -52,24 +52,8 @@ export function CyberIndexView({
   const { t, lang } = useI18n();
   const copy = t.cyber;
   const ui = t.benchmarkUi;
-  const [query, setQuery] = useState(search.q ?? "");
+  const [query, setQuery] = useUrlQuery(search, onSearchChange, parseCyberSearch);
   const [scale, setScale] = useState<ChartScale>("log");
-  const latestSearch = useRef(search);
-  useEffect(() => {
-    latestSearch.current = search;
-  }, [search]);
-  // An outside change of the URL (a link back here) resets the search box.
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setQuery((current) => (current.trim() === (search.q ?? "") ? current : search.q ?? ""));
-  }, [search.q]);
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      const q = query.trim() || undefined;
-      if (q !== latestSearch.current.q) onSearchChange(parseCyberSearch({ ...latestSearch.current, q }));
-    }, URL_QUERY_DELAY_MS);
-    return () => window.clearTimeout(timer);
-  }, [query, onSearchChange]);
 
   const benchmarkIds = new Set(data.benchmarks.map((benchmark) => benchmark.id));
   const sort = search.sort && (search.sort === "blocks" || search.sort === "cost" || benchmarkIds.has(search.sort)) ? search.sort : "index";

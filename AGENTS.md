@@ -68,6 +68,8 @@ matches the task. For shadcn components, follow
     benchmark, speed, or pricing field.
   - Hugging Face provides official repository metadata and evidence about open
     weights.
+  - Epoch AI owns the FrontierMath keys (`frontiermath_tiers_1_3`,
+    `frontiermath_tier_4`); it supplies no other field.
 - Resolve duplicate models by field ownership: keep first-party identity and
   Artificial Analysis measurements, update OpenRouter-owned fields from the
   matching entry, fill remaining gaps, then remove the redundant row. Hiding it

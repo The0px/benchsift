@@ -1,4 +1,4 @@
-import { Activity, AudioLines, Boxes, Gauge, RobotArm, Route, Shield, Terminal, type RuneIcon } from "@/components/icons";
+import { Activity, AudioLines, Blocks, Boxes, Brain, Gauge, RobotArm, Route, Shield, Terminal, type RuneIcon } from "@/components/icons";
 import type { Translations } from "@/lib/i18n";
 
 /** Benchmark pages, in the order the header menu and the mobile sheet list them. */
@@ -6,6 +6,8 @@ export const BENCHMARK_LINKS: ReadonlyArray<{ href: string; icon: RuneIcon; labe
   { href: "/agents/coding", icon: Terminal, label: (t) => t.nav.codingAgents },
   { href: "/benchmarks/deepswe", icon: Activity, label: (t) => t.nav.deepSwe },
   { href: "/benchmarks/frontiercode", icon: Gauge, label: (t) => t.nav.frontierCode },
+  { href: "/benchmarks/frontiermath", icon: Brain, label: (t) => t.nav.frontierMath },
+  { href: "/benchmarks/cursorbench", icon: Blocks, label: (t) => t.nav.cursorBench },
   { href: "/benchmarks/aa-3d", icon: Boxes, label: (t) => t.nav.aa3d },
   { href: "/benchmarks/decision-index", icon: Route, label: (t) => t.nav.decisionIndex },
   { href: "/benchmarks/cyber", icon: Shield, label: (t) => t.nav.cyber },

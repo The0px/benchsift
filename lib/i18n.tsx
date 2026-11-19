@@ -12,7 +12,7 @@ function ordinal(value: number): string {
 }
 
 export type SeoPageKey =
-  | "home" | "models" | "compare" | "agentsCoding" | "deepswe" | "frontiercode" | "aa3d"
+  | "home" | "models" | "compare" | "agentsCoding" | "deepswe" | "frontiercode" | "frontiermath" | "cursorbench" | "aa3d"
   | "decisionIndex" | "cyber" | "robotics" | "personality" | "about" | "privacy" | "legal" | "accessibility";
 
 export interface Translations {
@@ -90,7 +90,6 @@ export interface Translations {
     axisTime: string;
     xAxis: string;
     byPass4: string;
-    byTokens: string;
     cheapestTop: string;
   };
   compareWorkspace: {
@@ -191,6 +190,8 @@ export interface Translations {
     codingAgents: string;
     deepSwe: string;
     frontierCode: string;
+    frontierMath: string;
+    cursorBench: string;
     aa3d: string;
     decisionIndex: string;
     cyber: string;
@@ -256,11 +257,19 @@ export interface Translations {
       price: string;
       cyber: string;
       rank: (position: number) => string;
+      /** Which benchmark a ranking follows when it is not an Artificial Analysis index. */
+      sources: { coding: string; math: string };
+      sourceLink: string;
+      /** The ranking's source did not answer the latest refresh: its scores date from `date`. */
+      scoresAsOf: (date: string) => string;
     };
     sorts: {
       intelligence: string;
       coding: string;
       math: string;
+      frontiercode: string;
+      frontiermath: string;
+      frontiermath_t4: string;
       gpqa: string;
       mmlu_pro: string;
       hle: string;
@@ -721,6 +730,55 @@ export interface Translations {
       costs: string;
     };
   };
+  frontierMath: {
+    title: string;
+    description: string;
+    methodDescription: string;
+    scoreHint: string;
+    empty: string;
+    sourceNote: string;
+    viewOnSource: string;
+    search: string;
+    runs: string;
+    sortBy: string;
+    tierLabel: string;
+    tiers: { tiers_1_3: string; tier_4: string };
+    tierHint: { tiers_1_3: string; tier_4: string };
+    stats: {
+      runs: string;
+      runsHint: string;
+      best: string;
+      tied: (name: string, others: number) => string;
+      newest: string;
+      version: string;
+      versionDetail: string;
+    };
+    headers: { model: string; score: string; stderr: string; release: string };
+    method: { sets: string; runs: string; uncertainty: string; matching: string; funding: string; license: string };
+  };
+  cursorBench: {
+    title: string;
+    description: string;
+    methodDescription: string;
+    scoreHint: string;
+    empty: string;
+    sourceNote: (version: string) => string;
+    viewOnSource: string;
+    search: string;
+    runs: string;
+    sortBy: string;
+    stats: {
+      runs: string;
+      runsHint: string;
+      best: string;
+      tied: (name: string, others: number) => string;
+      cheapest: string;
+      version: string;
+      versionDetail: string;
+    };
+    headers: { model: string; score: string; cost: string; tokens: string; steps: string };
+    method: { tasks: string; runs: string; costs: string; matching: string; source: string };
+  };
   aa3d: {
     title: string;
     description: string;
@@ -778,7 +836,6 @@ export interface Translations {
       turnsHint: string;
       turnsRange: (p5: string, p25: string, p50: string, p75: string, p95: string) => string;
       tools: string;
-      toolsHint: string;
       toolKinds: { browser_test: string; code: string; assets: string; image_views: string; other: string };
       firstLook: string;
       firstLookHint: string;
@@ -970,6 +1027,8 @@ export interface Translations {
     terminalbench_science: string;
     hle_diamond: string;
     critpt_v2: string;
+    frontiermath_tiers_1_3: string;
+    frontiermath_tier_4: string;
     critpt_v2_hard: string;
     vials_aa: string;
     frontiercode_v1_1: string;
@@ -983,6 +1042,7 @@ export interface Translations {
     analyst_agent_aa: string;
     enterprise_ops_gym_aa: string;
     code2video_aa: string;
+    mka_aa: string;
     finance_and_accounting: string;
     strategy_and_ops: string;
     legal: string;
@@ -1001,6 +1061,8 @@ const T: Record<Lang, Translations> = {
         compare: { title: "Comparateur de modèles d'IA - BenchSift", description: "Comparez jusqu'à quatre modèles d'IA côte à côte : benchmarks, prix, latence, débit, fenêtre de contexte et capacités." },
         agentsCoding: { title: "Agents de code - BenchSift", description: "Classez les agents de code comme Claude Code, Cursor CLI ou OpenCode par score, coût et temps par tâche, d'après le Coding Agent Index d'Artificial Analysis." },
         deepswe: { title: "Benchmark DeepSWE - BenchSift", description: "Voyez quels agents de code réussissent les longues tâches d'ingénierie logicielle de DeepSWE (Datacurve), avec taux de réussite, coût et durée côte à côte." },
+        frontiermath: { title: "Benchmark FrontierMath - BenchSift", description: "Quels modèles d'IA résolvent des problèmes de mathématiques inédits de niveau recherche ? Scores FrontierMath v2 d'Epoch AI, Tiers 1–3 et Tier 4, avec marge d'erreur." },
+        cursorbench: { title: "Benchmark CursorBench - BenchSift", description: "Quels modèles d'IA réussissent les tâches de code ambiguës et multi-fichiers de CursorBench ? Scores publiés par Cursor, avec coût, tokens et étapes par tâche." },
         frontiercode: { title: "Benchmark FrontierCode - BenchSift", description: "Quels modèles d'IA écrivent des modifications qu'un mainteneur accepterait ? Scores FrontierCode sur de vrais dépôts open source, avec coût et temps par tâche." },
         aa3d: { title: "Benchmark AA-3D - BenchSift", description: "Comparez les modèles d'IA sur la création de scènes three.js interactives : Elo issu de votes à l'aveugle, coût par scène et tours d'agent, avec des scènes d'exemple." },
         decisionIndex: { title: "Decision Index - BenchSift", description: "Comparez modèles de décision et modèles de langage sur la lecture de documents, la constance, l'appel d'outils, les connaissances et le raisonnement, avec coût et temps par tâche." },
@@ -1094,7 +1156,6 @@ const T: Record<Lang, Translations> = {
       axisTime: "Durée moyenne par tâche",
       xAxis: "Axe horizontal",
       byPass4: "pass@4",
-      byTokens: "Tokens de sortie",
       cheapestTop: "Le moins cher du top 10"
 },
     compareWorkspace: {
@@ -1242,6 +1303,8 @@ const T: Record<Lang, Translations> = {
       codingAgents: "Coding Agents",
       deepSwe: "DeepSWE",
       frontierCode: "FrontierCode",
+      frontierMath: "FrontierMath",
+      cursorBench: "CursorBench",
       aa3d: "AA-3D",
       decisionIndex: "Decision Index",
       cyber: "Cyber Index",
@@ -1325,11 +1388,20 @@ const T: Record<Lang, Translations> = {
         price: "Prix",
         cyber: "Cyber",
         rank: (position) => `Rang ${position}`,
+        sources: {
+          coding: "Classé par FrontierCode 2.0 d'Artificial Analysis, qui évalue les modèles récents. Son ancien Coding Index reste disponible en mode Avancé.",
+          math: "Classé par FrontierMath Tiers 1–3 d'Epoch AI : problèmes de recherche inédits, résolus par les modèles récents. Le Math Index d'Artificial Analysis, qui ne couvre plus les nouveaux modèles, reste en mode Avancé.",
+        },
+        sourceLink: "Voir le benchmark",
+        scoresAsOf: (date) => `Scores du ${date}.`,
       },
       sorts: {
         intelligence: "Intelligence",
-        coding: "Coding",
-        math: "Math",
+        coding: "Coding Index AA",
+        math: "Math Index AA",
+        frontiercode: "FrontierCode 2.0",
+        frontiermath: "FrontierMath T1–3",
+        frontiermath_t4: "FrontierMath T4",
         agentic: "Agentique",
         cyber: "Cyber Index",
         gpqa: "GPQA",
@@ -1859,6 +1931,71 @@ const T: Record<Lang, Translations> = {
         costs: "Coût, durée et tokens par tâche sont calculés avec les données et les règles d'Artificial Analysis, sur les 100 tâches : les lectures en cache au prix du cache, le reste de l'entrée au prix d'écriture en cache, la sortie au prix de sortie ; la durée divise les tokens de sortie par la vitesse de sortie, sans délai avant le premier token. Un modèle sans taux de cache ou sans prix n'a pas de coût.",
       },
     },
+    frontierMath: {
+      title: "FrontierMath",
+      description: "Classement d'Epoch AI sur des problèmes de mathématiques inédits et très difficiles, du premier cycle universitaire (Tiers 1–3) à la recherche (Tier 4).",
+      methodDescription: "FrontierMath est un benchmark d'Epoch AI composé de plusieurs centaines de problèmes de mathématiques inédits. Les Tiers 1 à 3 vont du niveau licence aux problèmes exploratoires d'un doctorant avancé ; le Tier 4 relève de la recherche. BenchSift affiche la version 2, publiée le 12 juin 2026, qui corrige des erreurs dans 42 % des problèmes.",
+      scoreHint: "Part des problèmes du jeu privé résolus, meilleur score publié par Epoch AI pour cette exécution.",
+      empty: "Données FrontierMath indisponibles pour le moment.",
+      sourceNote: "Données Epoch AI, FrontierMath v2 (CC BY 4.0).",
+      viewOnSource: "Voir sur Epoch AI",
+      search: "Rechercher un modèle ou un créateur…",
+      runs: "exécutions",
+      sortBy: "Trier par",
+      tierLabel: "Niveau",
+      tiers: { tiers_1_3: "Tiers 1–3", tier_4: "Tier 4" },
+      tierHint: {
+        tiers_1_3: "Du niveau licence aux problèmes exploratoires d'un doctorant avancé. Le classement Maths de l'accueil suit ce niveau.",
+        tier_4: "Mathématiques de niveau recherche, beaucoup moins de problèmes : les écarts de quelques points restent dans la marge d'erreur.",
+      },
+      stats: {
+        runs: "Exécutions",
+        runsHint: "Une ligne par modèle et par réglage de raisonnement évalué par Epoch AI.",
+        best: "Meilleur score",
+        tied: (name, others) => `${name} et ${others} autre${others > 1 ? "s" : ""} à égalité`,
+        newest: "Plus récent",
+        version: "Version",
+        versionDetail: "Publiée le 12 juin 2026",
+      },
+      headers: { model: "Modèle", score: "Score", stderr: "Erreur type", release: "Sortie" },
+      method: {
+        sets: "Les scores portent sur les jeux privés de la v2 ; les anciennes versions ne sont pas mélangées à ces résultats.",
+        runs: "Epoch AI évalue chaque modèle avec un ou plusieurs réglages de raisonnement (low à max), chacun sur sa propre ligne.",
+        uncertainty: "L'erreur type est celle publiée par Epoch AI ; la barre de score montre l'intervalle à 95 % qui en découle.",
+        matching: "Une exécution est reliée à une fiche du catalogue par l'identifiant du modèle et son réglage ; une exécution sans fiche correspondante garde le nom donné par Epoch AI.",
+        funding: "Epoch AI indique que FrontierMath est financé par OpenAI.",
+        license: "Les données d'Epoch AI sont publiées sous licence Creative Commons Attribution 4.0.",
+      },
+    },
+    cursorBench: {
+      title: "CursorBench",
+      description: "Classement de Cursor sur des tâches de code ambiguës et multi-fichiers tirées de vraies sessions Cursor, avec le coût, les tokens et les étapes d'agent par tâche.",
+      methodDescription: "CursorBench est le benchmark interne de Cursor : des agents résolvent des tâches ambiguës touchant plusieurs fichiers, issues de vraies sessions d'utilisateurs de Cursor. BenchSift reprend le tableau public de Cursor tel qu'il est publié, sans recalcul.",
+      scoreHint: "Part des tâches réussies publiée par Cursor pour ce modèle et ce niveau de raisonnement.",
+      empty: "Données CursorBench indisponibles pour le moment.",
+      sourceNote: (version) => `Données Cursor, ${version}.`,
+      viewOnSource: "Voir sur Cursor",
+      search: "Rechercher un modèle…",
+      runs: "configurations",
+      sortBy: "Trier par",
+      stats: {
+        runs: "Configurations",
+        runsHint: "Une ligne par modèle et par niveau de raisonnement évalué par Cursor.",
+        best: "Meilleur score",
+        tied: (name, others) => `${name} et ${others} autre${others > 1 ? "s" : ""} à égalité`,
+        cheapest: "Coût par tâche le plus bas",
+        version: "Version",
+        versionDetail: "Version indiquée par Cursor sur sa page",
+      },
+      headers: { model: "Modèle", score: "Score", cost: "Coût / tâche", tokens: "Tokens / tâche", steps: "Étapes / tâche" },
+      method: {
+        tasks: "Les tâches viennent de sessions Cursor réelles ; Cursor ne publie pas le jeu de tâches.",
+        runs: "Chaque modèle est évalué à un ou plusieurs niveaux de raisonnement (Low à Max), chacun sur sa propre ligne.",
+        costs: "Le coût, les tokens et les étapes sont des moyennes par tâche publiées par Cursor.",
+        matching: "Une configuration est reliée à une fiche du catalogue par le nom du modèle et son niveau de raisonnement ; sans fiche correspondante, elle garde le nom donné par Cursor.",
+        source: "Cursor conçoit le benchmark et l'agent qui l'exécute : les résultats reflètent son propre environnement.",
+      },
+    },
     aa3d: {
       title: "AA-3D",
       description: "Classement Artificial Analysis des modèles qui construisent des scènes 3D interactives : chaque modèle transforme un brief en page three.js, puis un panel vote à l'aveugle entre deux scènes.",
@@ -1924,7 +2061,6 @@ const T: Record<Lang, Translations> = {
         turnsHint: "Le trait couvre du 5e au 95e centile, la barre du 25e au 75e, le repère marque la médiane. Une exécution s'arrête à 250 tours.",
         turnsRange: (p5, p25, p50, p75, p95) => `Médiane ${p50} tours ; 25e à 75e centile : ${p25} à ${p75} ; 5e à 95e : ${p5} à ${p95}`,
         tools: "Appels d'outils par scène",
-        toolsHint: "Nombre moyen d'appels par scène, par type d'outil.",
         toolKinds: { browser_test: "Tests navigateur", code: "Code", assets: "Assets", image_views: "Vues d'images", other: "Autres" },
         firstLook: "Rendu vu avant le tour 20",
         firstLookHint: "Part des scènes où l'agent a regardé son rendu avant le 20e tour.",
@@ -2143,6 +2279,8 @@ const T: Record<Lang, Translations> = {
       terminalbench_science: "Terminal-Bench-Science",
       hle_diamond: "HLE-Diamond",
       critpt_v2: "CritPt v2",
+      frontiermath_tiers_1_3: "FrontierMath Tiers 1–3 (Epoch AI)",
+      frontiermath_tier_4: "FrontierMath Tier 4 (Epoch AI)",
       critpt_v2_hard: "CritPt v2 (Hard Subset)",
       vials_aa: "VIALS-AA",
       frontiercode_v1_1: "FrontierCode 1.1",
@@ -2156,6 +2294,7 @@ const T: Record<Lang, Translations> = {
       analyst_agent_aa: "AA-AnalystAgent",
       enterprise_ops_gym_aa: "EnterpriseOps-Gym-AA",
       code2video_aa: "Code2Video-AA",
+      mka_aa: "MKA (Climb WSR)",
       finance_and_accounting: "Finance et comptabilité",
       strategy_and_ops: "Stratégie et opérations",
       legal: "Juridique",
@@ -2172,6 +2311,8 @@ const T: Record<Lang, Translations> = {
         compare: { title: "AI Model Compare - BenchSift", description: "Compare up to four AI models side by side across benchmarks, pricing, latency, throughput, context window and capabilities." },
         agentsCoding: { title: "Coding Agents - BenchSift", description: "Rank coding agents such as Claude Code, Cursor CLI and OpenCode by score, cost and time per task, using the Artificial Analysis Coding Agent Index." },
         deepswe: { title: "DeepSWE Benchmark - BenchSift", description: "See which coding agents solve DeepSWE's long software engineering tasks from Datacurve, with pass rates, cost and run time side by side." },
+        frontiermath: { title: "FrontierMath Benchmark - BenchSift", description: "Which AI models solve unpublished, research-level mathematics problems? Epoch AI FrontierMath v2 scores for Tiers 1–3 and Tier 4, with margins of error." },
+        cursorbench: { title: "CursorBench Benchmark - BenchSift", description: "Which AI models solve CursorBench's ambiguous, multi-file coding tasks? Scores Cursor publishes, with cost, tokens and steps per task." },
         frontiercode: { title: "FrontierCode Benchmark - BenchSift", description: "Which AI models write changes a maintainer would merge? FrontierCode scores on real open-source repositories, with cost and time per task." },
         aa3d: { title: "AA-3D Benchmark - BenchSift", description: "Compare AI models at building interactive three.js scenes: Elo from blind votes, cost per scene and agent turns, with sample scenes." },
         decisionIndex: { title: "Decision Index - BenchSift", description: "Compare decision models and language models on document reading, consistency, tool calling, knowledge and reasoning, with cost and time per task." },
@@ -2265,7 +2406,6 @@ const T: Record<Lang, Translations> = {
       axisTime: "Average time per task",
       xAxis: "Horizontal axis",
       byPass4: "pass@4",
-      byTokens: "Output tokens",
       cheapestTop: "Cheapest in the top 10"
 },
     compareWorkspace: {
@@ -2413,6 +2553,8 @@ const T: Record<Lang, Translations> = {
       codingAgents: "Coding Agents",
       deepSwe: "DeepSWE",
       frontierCode: "FrontierCode",
+      frontierMath: "FrontierMath",
+      cursorBench: "CursorBench",
       aa3d: "AA-3D",
       decisionIndex: "Decision Index",
       cyber: "Cyber Index",
@@ -2496,11 +2638,20 @@ const T: Record<Lang, Translations> = {
         price: "Price",
         cyber: "Cyber",
         rank: (position) => `Rank ${position}`,
+        sources: {
+          coding: "Ranked by Artificial Analysis FrontierCode 2.0, which covers current models. Its former Coding Index remains in Advanced mode.",
+          math: "Ranked by Epoch AI FrontierMath Tiers 1–3: unpublished research-level problems, run on current models. The Artificial Analysis Math Index, which no longer covers new models, remains in Advanced mode.",
+        },
+        sourceLink: "See the benchmark",
+        scoresAsOf: (date) => `Scores as of ${date}.`,
       },
       sorts: {
         intelligence: "Intelligence",
-        coding: "Coding",
-        math: "Math",
+        coding: "AA Coding Index",
+        math: "AA Math Index",
+        frontiercode: "FrontierCode 2.0",
+        frontiermath: "FrontierMath T1–3",
+        frontiermath_t4: "FrontierMath T4",
         agentic: "Agentic",
         cyber: "Cyber Index",
         gpqa: "GPQA",
@@ -3030,6 +3181,71 @@ const T: Record<Lang, Translations> = {
         costs: "Cost, time and tokens per task use Artificial Analysis' data and rules over the 100 tasks: cache reads at the cache price, other input at the cache-write price, output at the output price; time divides output tokens by output speed, without time to first token. A model without a cache rate or a price has no cost.",
       },
     },
+    frontierMath: {
+      title: "FrontierMath",
+      description: "Epoch AI leaderboard on unpublished, highly challenging mathematics problems, from undergraduate level (Tiers 1–3) to research level (Tier 4).",
+      methodDescription: "FrontierMath is an Epoch AI benchmark of several hundred unpublished mathematics problems. Tiers 1 to 3 range from undergraduate problems to exploratory problems suited to an advanced graduate student; Tier 4 is research-level mathematics. BenchSift shows version 2, released on 12 June 2026, which fixed errors in 42% of problems.",
+      scoreHint: "Share of the private problem set solved, the best score Epoch AI publishes for this run.",
+      empty: "FrontierMath data unavailable for now.",
+      sourceNote: "Data via Epoch AI, FrontierMath v2 (CC BY 4.0).",
+      viewOnSource: "View on Epoch AI",
+      search: "Search for a model or creator…",
+      runs: "runs",
+      sortBy: "Sort by",
+      tierLabel: "Tier",
+      tiers: { tiers_1_3: "Tiers 1–3", tier_4: "Tier 4" },
+      tierHint: {
+        tiers_1_3: "From undergraduate level to exploratory problems for an advanced graduate student. The home page's Math ranking follows this tier.",
+        tier_4: "Research-level mathematics with far fewer problems: gaps of a few points stay within the margin of error.",
+      },
+      stats: {
+        runs: "Runs",
+        runsHint: "One row per model and reasoning setting Epoch AI evaluated.",
+        best: "Best score",
+        tied: (name, others) => `${name} and ${others} other${others > 1 ? "s" : ""} tied`,
+        newest: "Newest",
+        version: "Version",
+        versionDetail: "Released on 12 June 2026",
+      },
+      headers: { model: "Model", score: "Score", stderr: "Std. error", release: "Released" },
+      method: {
+        sets: "Scores are on the private v2 sets; earlier versions are not mixed into these results.",
+        runs: "Epoch AI evaluates each model at one or more reasoning settings (low to max), each on its own row.",
+        uncertainty: "The standard error is Epoch AI's; the score bar shows the 95% interval it implies.",
+        matching: "A run is tied to a catalogue page by its model id and setting; a run without a matching page keeps Epoch AI's name.",
+        funding: "Epoch AI states that FrontierMath is supported by OpenAI.",
+        license: "Epoch AI's data is published under the Creative Commons Attribution 4.0 licence.",
+      },
+    },
+    cursorBench: {
+      title: "CursorBench",
+      description: "Cursor leaderboard on ambiguous, multi-file coding tasks taken from real Cursor sessions, with cost, tokens and agent steps per task.",
+      methodDescription: "CursorBench is Cursor's in-house benchmark: agents solve ambiguous tasks spanning several files, drawn from real Cursor user sessions. BenchSift shows Cursor's public table as published, without recomputing it.",
+      scoreHint: "Share of tasks solved Cursor publishes for this model and reasoning level.",
+      empty: "CursorBench data unavailable for now.",
+      sourceNote: (version) => `Data via Cursor, ${version}.`,
+      viewOnSource: "View on Cursor",
+      search: "Search for a model…",
+      runs: "configurations",
+      sortBy: "Sort by",
+      stats: {
+        runs: "Configurations",
+        runsHint: "One row per model and reasoning level Cursor evaluated.",
+        best: "Best score",
+        tied: (name, others) => `${name} and ${others} other${others > 1 ? "s" : ""} tied`,
+        cheapest: "Lowest cost per task",
+        version: "Version",
+        versionDetail: "Version Cursor names on its page",
+      },
+      headers: { model: "Model", score: "Score", cost: "Cost / task", tokens: "Tokens / task", steps: "Steps / task" },
+      method: {
+        tasks: "Tasks come from real Cursor sessions; Cursor does not publish the task set.",
+        runs: "Each model is evaluated at one or more reasoning levels (Low to Max), each on its own row.",
+        costs: "Cost, tokens and steps are per-task averages Cursor publishes.",
+        matching: "A configuration is tied to a catalogue page by its model name and reasoning level; without a matching page it keeps Cursor's name.",
+        source: "Cursor designs both the benchmark and the agent that runs it: results reflect its own environment.",
+      },
+    },
     aa3d: {
       title: "AA-3D",
       description: "Artificial Analysis leaderboard of models building interactive 3D scenes: each model turns a brief into a three.js page, then a panel votes blind between two scenes.",
@@ -3095,7 +3311,6 @@ const T: Record<Lang, Translations> = {
         turnsHint: "The line spans the 5th to 95th percentile, the bar the 25th to 75th, and the mark is the median. A run stops at 250 turns.",
         turnsRange: (p5, p25, p50, p75, p95) => `Median ${p50} turns; 25th to 75th percentile: ${p25} to ${p75}; 5th to 95th: ${p5} to ${p95}`,
         tools: "Tool calls per scene",
-        toolsHint: "Average calls per scene, by tool kind.",
         toolKinds: { browser_test: "Browser tests", code: "Code", assets: "Assets", image_views: "Image views", other: "Other" },
         firstLook: "Render seen by turn 20",
         firstLookHint: "Share of scenes where the agent looked at its render by turn 20.",
@@ -3314,6 +3529,8 @@ const T: Record<Lang, Translations> = {
       terminalbench_science: "Terminal-Bench-Science",
       hle_diamond: "HLE-Diamond",
       critpt_v2: "CritPt v2",
+      frontiermath_tiers_1_3: "FrontierMath Tiers 1–3 (Epoch AI)",
+      frontiermath_tier_4: "FrontierMath Tier 4 (Epoch AI)",
       critpt_v2_hard: "CritPt v2 (Hard Subset)",
       vials_aa: "VIALS-AA",
       frontiercode_v1_1: "FrontierCode 1.1",
@@ -3327,6 +3544,7 @@ const T: Record<Lang, Translations> = {
       analyst_agent_aa: "AA-AnalystAgent",
       enterprise_ops_gym_aa: "EnterpriseOps-Gym-AA",
       code2video_aa: "Code2Video-AA",
+      mka_aa: "MKA (Climb WSR)",
       finance_and_accounting: "Finance & Accounting",
       strategy_and_ops: "Strategy & Ops",
       legal: "Legal",

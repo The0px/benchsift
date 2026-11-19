@@ -12,6 +12,10 @@ import type { DecisionIndexModelInfo } from "@/lib/decision-index-catalog";
 import type { DecisionIndexData } from "@/lib/decision-index-data";
 import type { FrontierCodeModelInfo } from "@/lib/frontiercode-catalog";
 import type { FrontierCodeData } from "@/lib/frontiercode-data";
+import type { FrontierMathModelInfo } from "@/lib/frontiermath-catalog";
+import type { FrontierMathData } from "@/lib/frontiermath-data";
+import type { CatalogRunInfo } from "@/lib/benchmark-run-catalog";
+import type { CursorBenchData } from "@/lib/cursorbench-data";
 import { summarizeRanking, type RankingSummary } from "@/lib/data-summary";
 import { formatDuration, formatNumber, formatSeconds, formatPercent, formatSpeed, type DisplayLang } from "@/lib/format";
 
@@ -46,6 +50,43 @@ export function frontierCodeSummary(data: FrontierCodeData & { catalog: Record<s
       score: row.score,
       cost: row.cost_per_task_usd,
       time: row.time_per_task_seconds,
+    }))),
+    updatedAt: data.fetched_at ?? null,
+    unit: "results",
+    costUnit: "perTask",
+    formatScore: (value, lang) => formatPercent(value, lang),
+    formatSpeed: secondsPerTask,
+  };
+}
+
+/** Summary of the Tiers 1–3 ranking, the default view and the catalogue's Math ranking. */
+export function frontierMathSummary(data: FrontierMathData & { catalog: Record<string, FrontierMathModelInfo> }): BenchmarkSummary {
+  return {
+    benchmark: "FrontierMath",
+    summary: summarizeRanking(data.tiers.tiers_1_3.map((row) => ({
+      name: data.catalog[row.id]?.name ?? row.name,
+      href: modelHref(data.catalog[row.id]?.slug),
+      score: row.score,
+      cost: null,
+      time: null,
+    }))),
+    updatedAt: data.fetched_at ?? null,
+    unit: "results",
+    costUnit: "perTask",
+    formatScore: (value, lang) => formatPercent(value, lang),
+    formatSpeed: secondsPerTask,
+  };
+}
+
+export function cursorBenchSummary(data: CursorBenchData & { catalog: Record<string, CatalogRunInfo> }): BenchmarkSummary {
+  return {
+    benchmark: data.version ? `CursorBench ${data.version}` : "CursorBench",
+    summary: summarizeRanking(data.rows.map((row) => ({
+      name: row.id,
+      href: modelHref(data.catalog[row.id]?.slug),
+      score: row.score,
+      cost: row.cost_per_task_usd,
+      time: null,
     }))),
     updatedAt: data.fetched_at ?? null,
     unit: "results",

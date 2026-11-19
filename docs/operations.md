@@ -94,15 +94,20 @@ differently from the catalogue: `aa_briefcase_elo`, `frontiercode_v2_0` and
 `mlcr_overall` are stored as `aa_briefcase`, `frontiercode_2_0` and `mlcr_aa`.
 The Intelligence Index page's `initialModels` array fills the gaps the API
 leaves and never replaces an API value; it is also the only source for
-VIALS-AA (`vialsScore`, its pass^3 score). CritPt v2 has two scores: the full
+VIALS-AA (`vialsScore`, its pass^3 score) and MKA (`mka_aa`, the Climb WSR
+`mkaClimbWsr`; the regression WSR and per-vertical breakdowns are left out).
+τ³-Banking (`tauBanking`) and Terminal-Bench 2.1 (`terminalBench21`) fill gaps
+in the API keys `tau_banking` and `terminalbench_v2_1`. AA-Omniscience v1.1 is
+read as its accuracy (`omniscienceBreakdown.accuracy`); the net index and the
+v1 block (`omniscienceV1`) stay out. CritPt v2 has two scores: the full
 set (`critpt_v2`) and the Hard Subset the Intelligence Index weights
 (`critpt_v2_hard`).
 
 Speed and latency follow Performance Benchmarking v3: when a model carries the
 `performance_v3` key, its means replace the earlier medians and
 `time_per_task_seconds` is read when the tier publishes it. A null block means
-AA has no measurement in the latest window, and neither `performance` nor the
-legacy endpoint fills it, since both use the earlier methodology. Responses
+AA has no measurement in the latest window, and `performance` does not fill
+it, since it uses the earlier methodology. Responses
 without the key keep the medians. The 500-token end-to-end time still comes
 from `performance`.
 
@@ -158,6 +163,53 @@ output price, and time as output tokens over output speed. Tests pin these to
 the values AA displays. A model without a cache hit rate or with zero prices has
 no cost, as on AA; a missing input leaves the figure null. Rows join the catalogue by AA slug (or alias); an
 unlisted slug keeps the source name and has no link.
+
+FrontierMath reads Epoch AI's public benchmark archive
+(`https://epoch.ai/data/benchmark_data.zip`, CC BY 4.0): `model_metadata.csv`
+for display names and model groups, `frontiermath_tiers_1_3_v2.csv` and
+`frontiermath_tier_4_v2.csv` for scores. Only the v2 private sets released on
+12 June 2026 are read; the v1 files (`frontiermath.csv`,
+`frontiermath_tier_4.csv`) are a different methodology and stay out. A row needs
+a valid model version and a score in `[0, 1]` (Epoch's best score across
+scorers, else its mean); the published standard error is kept. Epoch's
+`frontiermath_erdos` set and per-run logs are left out. The archive is read
+server-side with a bounded ZIP reader (`lib/zip-entries.ts`), cached for 6 h.
+
+FrontierMath is also an optional catalogue source: each scheduled refresh writes
+`frontiermath_tiers_1_3` and `frontiermath_tier_4` (0–1 fractions, Epoch-owned
+keys) on matched models. A run's model version (`gpt-6.2-astra_max`) becomes a
+slug candidate with dots as hyphens and any release-date suffix removed, then
+its model group name; the reasoning effort opens the matching catalogue
+configuration. A run whose effort the catalogue does not list lands on the
+family's unqualified default entry, never on another explicit configuration;
+when several runs land on one entry, the listed configuration wins, then the
+higher score. Hosting suffixes (`-together`) are not stripped.
+
+FrontierMath, the Intelligence Index page and the Cyber Index are optional
+sources. When one returns nothing, the refresh still succeeds and the history
+merge keeps the previous catalogue's values for its keys. The refresh stats
+date each source's last answer (`indexV5FetchedAt`, `frontierMathFetchedAt`,
+`cyberIndexFetchedAt`, against `sourcesFetchedAt`); the home page's Coding,
+Math and Cyber rankings then show the date of the scores they kept ("Scores as
+of …") without reporting the failure.
+
+CursorBench reads the first, visible `<table>` of Cursor's server-rendered page
+(`https://cursor.com/cursorbench`, currently CursorBench 4.1); the second table
+is a hidden duplicate. The version comes from the page's `<h1>`, not from the
+older versions its changelog lists. A row needs a name and a score in
+`[0, 100]` %; cost, tokens and steps per task are kept when readable, else
+null. Names end with Cursor's reasoning level ("Extra High" → `xhigh`), and
+Claude families appear without their brand ("Opus 5.5" → `claude-opus-5-5`).
+Rows are matched to the catalogue for display only; CursorBench writes no
+catalogue field. Epoch's `cursorbench_external.csv` is an older copy and stays
+out. The page is cached for 6 h.
+
+Artificial Analysis no longer publishes its Coding and Math indices for new
+models (the Intelligence Index v5 has neither). The home page's Coding ranking
+therefore follows FrontierCode 2.0 (`frontiercode_2_0`) and its Math ranking
+FrontierMath Tiers 1–3 (`frontiermath_tiers_1_3`); each column names its
+benchmark. The AA Coding and Math indices stay available as Advanced sorts and
+columns under their own names.
 
 AA-3D reads the same `initialModels` array from Artificial Analysis's
 `/evaluations/aa-3d` RSC response, keeping models with a positive `aa3dElo`, and

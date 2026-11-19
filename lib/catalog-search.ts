@@ -49,7 +49,7 @@ function preset(value: unknown, key: ThresholdKey): number | undefined {
 
 const RANKS = ["coding", "math", "speed", "price_asc", "cyber"] as const;
 const SORTS = [
-  "coding", "math", "agentic", "cyber", "gpqa", "mmlu_pro", "hle", "livecodebench", "math_500", "aime_25",
+  "coding", "math", "frontiercode", "frontiermath", "frontiermath_t4", "agentic", "cyber", "gpqa", "mmlu_pro", "hle", "livecodebench", "math_500", "aime_25",
   "speed", "ttft", "openrouter_popular", "price", "input_price", "output_price", "cost_per_task", "context", "newest", "name",
 ] as const;
 /** Links shared before sorts gained a direction. */

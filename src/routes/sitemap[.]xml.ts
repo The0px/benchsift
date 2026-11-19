@@ -89,6 +89,8 @@ export const Route = createFileRoute("/sitemap.xml")({
           live("/agents/coding"),
           live("/benchmarks/deepswe"),
           live("/benchmarks/frontiercode"),
+          live("/benchmarks/frontiermath"),
+          live("/benchmarks/cursorbench"),
           live("/benchmarks/aa-3d"),
           live("/benchmarks/decision-index"),
           catalogue("/benchmarks/cyber", 0.8),

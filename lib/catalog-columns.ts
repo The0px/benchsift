@@ -3,12 +3,12 @@ import type { LLMModel } from "./model-types";
 
 /** Measurements the Advanced table can show; each is also a sort. */
 export const COLUMN_KEYS = [
-  "intelligence", "coding", "math", "agentic", "cyber", "gpqa", "hle", "livecodebench",
+  "intelligence", "coding", "math", "frontiercode", "frontiermath", "frontiermath_t4", "agentic", "cyber", "gpqa", "hle", "livecodebench",
   "speed", "ttft", "price", "input_price", "output_price", "cost_per_task", "context", "newest",
 ] as const;
 export type ColumnKey = (typeof COLUMN_KEYS)[number];
 
-export const DEFAULT_COLUMNS: ColumnKey[] = ["intelligence", "coding", "math", "speed", "ttft", "price", "context"];
+export const DEFAULT_COLUMNS: ColumnKey[] = ["intelligence", "frontiercode", "frontiermath", "speed", "ttft", "price", "context"];
 /** Beyond nine measurements the table no longer fits beside the model names. */
 export const MAX_COLUMNS = 9;
 

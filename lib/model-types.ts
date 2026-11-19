@@ -31,6 +31,10 @@ export interface Evaluations {
   apex_agents?: number | null;          // APEX-Agents-AA (long-horizon agentic)
   omniscience_non_hallucination?: number | null; // AA-Omniscience non-hallucination rate
   cyber_index?: number | null;          // AA Cyber Index, 0-100 (details in cyber_index_result)
+  frontiercode_2_0?: number | null;     // AA FrontierCode 2.0, 0-1
+  // Epoch AI FrontierMath v2 (private sets), 0-1
+  frontiermath_tiers_1_3?: number | null;
+  frontiermath_tier_4?: number | null;
   // Catch-all for any other field returned by the API / pour tout autre champ
   [key: string]: number | null | undefined;
 }

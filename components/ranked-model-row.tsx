@@ -27,6 +27,9 @@ function secondaryMetrics(primary: NormalRankingKey): NormalRankingKey[] {
 function metricLabel(metric: NormalRankingKey, t: Translations): string {
   if (metric === "intelligence") return t.grid.ranking.general;
   if (metric === "price_asc") return t.grid.ranking.price;
+  // Name the benchmark itself, so a score is never read as another methodology's.
+  if (metric === "coding") return t.nav.frontierCode;
+  if (metric === "math") return t.nav.frontierMath;
   return t.grid.ranking[metric];
 }
 
@@ -34,6 +37,7 @@ function formatMetric(metric: NormalRankingKey, value: number | null, lang: Lang
   if (metric === "speed") return formatSpeed(value, lang);
   if (metric === "price_asc") return formatMoney(value, lang);
   if (metric === "cyber") return formatPercent(value == null ? null : value / 100, lang);
+  if (metric === "coding" || metric === "math") return formatPercent(value, lang);
   return formatNumber(value, lang);
 }
 

@@ -1,6 +1,9 @@
 import { parseCodingAgents } from "@/lib/aa-coding-agents";
 import { mergeAACyberIndex, parseAACyberIndex, type AACyberIndexEntry } from "@/lib/aa-cyber";
 import { mergeAAIndexV5, parseAAIndexV5, type AAIndexV5Entry } from "@/lib/aa-index-v5";
+import { getFrontierMathData } from "@/lib/frontiermath";
+import { datedSourceStats, type SourcedRanking } from "@/lib/catalogue-sources";
+import { mergeFrontierMath } from "@/lib/frontiermath-catalog";
 import { enrichModelsWithModelsDev } from "@/lib/models-dev-source";
 import { mergeModelsDev } from "@/lib/models-dev";
 import { cached } from "@/lib/revalidate-cache";
@@ -41,11 +44,9 @@ import { enrichStealthModels } from "./stealth-source";
 import { errorReason, logEvent } from "./logger";
 import { isExcludedOpenRouterModelId, isOpenRouterFreeVariantId } from "@/lib/openrouter-model-filter";
 import {
-  AA_LEGACY_LANGUAGE_MODELS_ENDPOINT,
   AA_LANGUAGE_MODELS_ENDPOINT,
   AA_LANGUAGE_MODELS_PRO_ENDPOINT,
   collectAAPaginatedData,
-  mergeAALanguageModelSources,
   normaliseAAV2LanguageModels,
   type AAApiEnvelope,
   type AAV2LanguageModel,
@@ -189,11 +190,6 @@ async function apiDataFromFirstPage<T>(
     firstPage as AAApiEnvelope<unknown[]>,
     (pageEndpoint) => apiFetchPage<unknown[]>(pageEndpoint),
   ) as T;
-}
-
-async function apiFetch<T>(endpoint: string): Promise<T> {
-  const firstPage = await apiFetchPage<T>(endpoint);
-  return apiDataFromFirstPage(endpoint, firstPage);
 }
 
 async function apiFetchPreferred<T>(
@@ -458,16 +454,8 @@ async function fetchAAIndexV5(): Promise<AAIndexV5Entry[]> {
 }
 
 async function fetchAALanguageModels(): Promise<LLMModel[]> {
-  const [rows, legacyModels] = await Promise.all([
-    apiFetchPreferred<AAV2LanguageModel[]>(
-      AA_LANGUAGE_MODELS_ENDPOINT,
-      AA_LANGUAGE_MODELS_PRO_ENDPOINT,
-    ),
-    apiFetch<LLMModel[]>(AA_LEGACY_LANGUAGE_MODELS_ENDPOINT).catch(() => []),
-  ]);
-  return mergeAALanguageModelSources(
-    normaliseAAV2LanguageModels(rows),
-    legacyModels,
+  return normaliseAAV2LanguageModels(
+    await apiFetchPreferred<AAV2LanguageModel[]>(AA_LANGUAGE_MODELS_ENDPOINT, AA_LANGUAGE_MODELS_PRO_ENDPOINT),
   );
 }
 
@@ -545,6 +533,7 @@ interface CronSourceStats extends Record<string, number> {
   builtPartialModels: number;
   cyberIndexModels: number;
   indexV5Models: number;
+  frontierMathModels: number;
   transientRetries: number;
 }
 
@@ -560,18 +549,30 @@ interface CronFetchStats extends CronSourceStats {
 interface CronFetchResult {
   models: LLMModel[];
   stats: CronSourceStats;
+  /** When the sources were fetched, and which optional ranking sources answered. */
+  sources: { fetchedAt: number; answered: Record<SourcedRanking, boolean> };
 }
 
 async function fetchModelsForCron(): Promise<CronFetchResult> {
   logEvent("info", "refresh.sources_started");
   const retriesBefore = getFetchRetryCount();
-  const [apiModels, validSlugs, mediaModels, cyberEntries, indexV5Entries] = await Promise.all([
+  const [apiModels, validSlugs, mediaModels, cyberEntries, indexV5Entries, frontierMath] = await Promise.all([
     atStage("aa_language", fetchAALanguageModels()),
     atStage("aa_sitemap", scrapeAllModelSlugs()),
     atStage("aa_media", fetchAAMediaModels(apiFetchPreferred)),
     fetchAACyberIndex(),
     fetchAAIndexV5(),
+    // Optional sources: on an outage the catalogue keeps their previous scores.
+    getFrontierMathData(),
   ]);
+  const sources = {
+    fetchedAt: Date.now(),
+    answered: {
+      coding: indexV5Entries.length > 0,
+      math: frontierMath.tiers.tiers_1_3.length + frontierMath.tiers.tier_4.length > 0,
+      cyber: cyberEntries.length > 0,
+    },
+  };
 
   const validSlugSet = new Set(validSlugs);
   const apiModelsInSitemap = apiModels.filter((m) => validSlugSet.has(m.slug));
@@ -588,18 +589,21 @@ async function fetchModelsForCron(): Promise<CronFetchResult> {
     missingSitemapSlugs: missingSlugs.length,
   };
 
-  logEvent("info", "refresh.sources_received", { ...statsBase, cyberIndexEntries: cyberEntries.length, indexV5Entries: indexV5Entries.length });
+  logEvent("info", "refresh.sources_received", { ...statsBase, cyberIndexEntries: cyberEntries.length, indexV5Entries: indexV5Entries.length, frontierMathEntries: frontierMath.tiers.tiers_1_3.length + frontierMath.tiers.tier_4.length });
   if (missingSlugs.length === 0) {
     const cyber = mergeAACyberIndex(apiAndMediaModels, cyberEntries);
     const indexV5 = mergeAAIndexV5(cyber.models, indexV5Entries);
-    const models = await atStage("enrichment", enrichCronModelsWithSources(indexV5.models, validSlugSet));
+    const math = mergeFrontierMath(indexV5.models, frontierMath);
+    const models = await atStage("enrichment", enrichCronModelsWithSources(math.models, validSlugSet));
     return {
       models,
+      sources,
       stats: {
         ...statsBase,
         builtPartialModels: 0,
         cyberIndexModels: cyber.matched,
         indexV5Models: indexV5.matched,
+      frontierMathModels: math.matched,
         transientRetries: getFetchRetryCount() - retriesBefore,
       },
     };
@@ -623,14 +627,17 @@ async function fetchModelsForCron(): Promise<CronFetchResult> {
 
   const cyber = mergeAACyberIndex([...apiAndMediaModels, ...extraModels], cyberEntries);
   const indexV5 = mergeAAIndexV5(cyber.models, indexV5Entries);
-  const models = await atStage("enrichment", enrichCronModelsWithSources(indexV5.models, validSlugSet));
+  const math = mergeFrontierMath(indexV5.models, frontierMath);
+  const models = await atStage("enrichment", enrichCronModelsWithSources(math.models, validSlugSet));
   return {
     models,
+    sources,
     stats: {
       ...statsBase,
       builtPartialModels: extraModels.length,
       cyberIndexModels: cyber.matched,
       indexV5Models: indexV5.matched,
+      frontierMathModels: math.matched,
       transientRetries: getFetchRetryCount() - retriesBefore,
     },
   };
@@ -697,7 +704,7 @@ export function refreshModelsCache(): Promise<{ count: number; stats: CronFetchS
   return refreshing;
 }
 async function performModelsRefresh(): Promise<{ count: number; stats: CronFetchStats }> {
-  const { models: rawModels, stats } = await fetchModelsForCron();
+  const { models: rawModels, stats, sources } = await fetchModelsForCron();
   const freshModels = normaliseCatalogModels(rawModels);
   const previous = await readModelsCache({ allowStale: true });
   const previousModels = previous
@@ -715,6 +722,7 @@ async function performModelsRefresh(): Promise<{ count: number; stats: CronFetch
     previousModels: previousModels.length,
     retainedHistoricalModels: mergedCatalog.retainedCount,
     ...sourceCoverageStats(models),
+    ...datedSourceStats(sources.fetchedAt, sources.answered, previous?.stats),
   };
   await atStage("cache_write", writeModelsCache(models, completeStats));
   if (models.length > 0) lastSuccessfulModels = models;
